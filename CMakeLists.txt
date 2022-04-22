@@ -17,13 +17,25 @@ find_package(pluginlib REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rclcpp_lifecycle REQUIRED)
 
-# ament_target_dependencies(
-#   ${PROJECT_NAME}
-#   hardware_interface
-#   pluginlib
-#   rclcpp
-#   rclcpp_lifecycle
-# )
+add_library(
+  ${PROJECT_NAME}
+  SHARED
+  src/mvp_hardware_interface.cpp
+)
+
+target_include_directories(
+  ${PROJECT_NAME}
+  PRIVATE
+  include
+)
+
+ament_target_dependencies(
+  ${PROJECT_NAME}
+  hardware_interface
+  pluginlib
+  rclcpp
+  rclcpp_lifecycle
+)
 
 # Causes the visibility macros to use dllexport rather than dllimport,
 # which is appropriate when building the dll but not consuming it.
@@ -31,11 +43,21 @@ find_package(rclcpp_lifecycle REQUIRED)
 
 # prevent pluginlib from using boost
 #target_compile_definitions(${PROJECT_NAME} PUBLIC "PLUGINLIB__DISABLE_BOOST_FUNCTIONS")
-#pluginlib_export_plugin_description_file(hardware_interface ros2_control_demo_hardware.xml)
+pluginlib_export_plugin_description_file(hardware_interface mvp_driver.xml)
 
 install(
-  DIRECTORY mvp/
+  TARGETS ${PROJECT_NAME}
+  DESTINATION lib
+)
+
+install(
+  DIRECTORY config include launch
   DESTINATION share/${PROJECT_NAME}
+)
+
+install(
+  DIRECTORY include/
+  DESTINATION include
 )
 
 if(BUILD_TESTING)
@@ -49,10 +71,10 @@ ament_export_include_directories(
 # ament_export_libraries(
 #   ${PROJECT_NAME}
 # )
-# ament_export_dependencies(
-#   hardware_interface
-#   pluginlib
-#   rclcpp
-#   rclcpp_lifecycle
-# )
+ament_export_dependencies(
+  hardware_interface
+  pluginlib
+  rclcpp
+  rclcpp_lifecycle
+)
 ament_package()

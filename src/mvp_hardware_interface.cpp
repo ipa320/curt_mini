@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "mvp/mvp_system.h"
+#include "ipa_outdoor_drivers/mvp_hardware_interface.hpp"
 #include <chrono>
 #include <cmath>
 #include <limits>
@@ -23,16 +23,14 @@
 #include "rclcpp/clock.hpp"
 #include "rclcpp/rclcpp.hpp"
 
-namespace mvp_system
+namespace ipa_outdoor_drivers
 {
-hardware_interface::CallbackReturn MvpHardwareInterface::on_init(
+hardware_interface::return_type MvpHardwareInterface::configure(
   const hardware_interface::HardwareInfo & info)
 {
-  if (
-    hardware_interface::SystemInterface::on_init(info) !=
-    hardware_interface::CallbackReturn::SUCCESS)
+  if (configure_default(info) != hardware_interface::return_type::OK)
   {
-    return hardware_interface::CallbackReturn::ERROR;
+    return hardware_interface::return_type::ERROR;
   }
 
   for (const hardware_interface::ComponentInfo & joint : info_.joints)
@@ -44,7 +42,7 @@ hardware_interface::CallbackReturn MvpHardwareInterface::on_init(
         rclcpp::get_logger("MvpHardwareInterface"),
         "Joint '%s' has %zu command interfaces found. 1 expected.", joint.name.c_str(),
         joint.command_interfaces.size());
-      return hardware_interface::CallbackReturn::ERROR;
+      return hardware_interface::return_type::ERROR;
     }
 
     if (joint.command_interfaces[0].name != hardware_interface::HW_IF_VELOCITY)
@@ -53,7 +51,7 @@ hardware_interface::CallbackReturn MvpHardwareInterface::on_init(
         rclcpp::get_logger("MvpHardwareInterface"),
         "Joint '%s' have %s command interfaces found. '%s' expected.", joint.name.c_str(),
         joint.command_interfaces[0].name.c_str(), hardware_interface::HW_IF_VELOCITY);
-      return hardware_interface::CallbackReturn::ERROR;
+      return hardware_interface::return_type::ERROR;
     }
 
     if (joint.state_interfaces.size() != 2)
@@ -62,7 +60,7 @@ hardware_interface::CallbackReturn MvpHardwareInterface::on_init(
         rclcpp::get_logger("MvpHardwareInterface"),
         "Joint '%s' has %zu state interface. 2 expected.", joint.name.c_str(),
         joint.state_interfaces.size());
-      return hardware_interface::CallbackReturn::ERROR;
+      return hardware_interface::return_type::ERROR;
     }
 
     if (joint.state_interfaces[0].name != hardware_interface::HW_IF_POSITION)
@@ -71,7 +69,7 @@ hardware_interface::CallbackReturn MvpHardwareInterface::on_init(
         rclcpp::get_logger("MvpHardwareInterface"),
         "Joint '%s' have '%s' as first state interface. '%s' expected.", joint.name.c_str(),
         joint.state_interfaces[0].name.c_str(), hardware_interface::HW_IF_POSITION);
-      return hardware_interface::CallbackReturn::ERROR;
+      return hardware_interface::return_type::ERROR;
     }
 
     if (joint.state_interfaces[1].name != hardware_interface::HW_IF_VELOCITY)
@@ -80,13 +78,13 @@ hardware_interface::CallbackReturn MvpHardwareInterface::on_init(
         rclcpp::get_logger("MvpHardwareInterface"),
         "Joint '%s' have '%s' as second state interface. '%s' expected.", joint.name.c_str(),
         joint.state_interfaces[1].name.c_str(), hardware_interface::HW_IF_VELOCITY);
-      return hardware_interface::CallbackReturn::ERROR;
+      return hardware_interface::return_type::ERROR;
     }
   }
 
   clock_ = rclcpp::Clock();
 
-  return hardware_interface::CallbackReturn::SUCCESS;
+  return hardware_interface::return_type::OK;
 }
 
 std::vector<hardware_interface::StateInterface> MvpHardwareInterface::export_state_interfaces()
@@ -113,8 +111,7 @@ std::vector<hardware_interface::CommandInterface> MvpHardwareInterface::export_c
   return command_interfaces;
 }
 
-hardware_interface::CallbackReturn MvpHardwareInterface::on_activate(
-  const rclcpp_lifecycle::State & /*previous_state*/)
+hardware_interface::return_type MvpHardwareInterface::start()
 {
   // init variables
   left_wheel_velocity_command_ = 0;
@@ -129,17 +126,20 @@ hardware_interface::CallbackReturn MvpHardwareInterface::on_activate(
 
   ////////////////// ACTIVATE MOTORS ////////////////
 
+  status_ = hardware_interface::status::STARTED;
+
   last_timestamp_ = clock_.now();
 
-  return hardware_interface::CallbackReturn::SUCCESS;
+  return hardware_interface::return_type::OK;
 }
 
-hardware_interface::CallbackReturn MvpHardwareInterface::on_deactivate(
-  const rclcpp_lifecycle::State & /*previous_state*/)
+hardware_interface::return_type MvpHardwareInterface::stop()
 {
   ////////////////// DEACTIVATE MOTORS ////////////////
 
-  return hardware_interface::CallbackReturn::SUCCESS;
+  status_ = hardware_interface::status::STOPPED;
+
+  return hardware_interface::return_type::OK;
 }
 
 hardware_interface::return_type MvpHardwareInterface::read()
@@ -160,4 +160,4 @@ hardware_interface::return_type MvpHardwareInterface::write()
 
 #include "pluginlib/class_list_macros.hpp"
 PLUGINLIB_EXPORT_CLASS(
-  MvpHardwareInterface, hardware_interface::SystemInterface)
+  ipa_outdoor_drivers::MvpHardwareInterface, hardware_interface::SystemInterface)

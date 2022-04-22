@@ -1,3 +1,0 @@
-<library path="ipa_outdoor_drivers">
-    <class type="MvpHardwareInterface" base_class_type="hardware_interface::SystemInterface"></class>
-</library>
