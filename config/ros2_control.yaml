@@ -5,14 +5,18 @@ controller_manager:
       diffdrive_controller:
         type: diff_drive_controller/DiffDriveController
 
+      joint_state_broadcaster:
+        type: joint_state_broadcaster/JointStateBroadcaster
+
   diffdrive_controller:
     ros__parameters:
       left_wheel_names: ["left_motor"]
       right_wheel_names: ["right_motor"]
 
-      wheel_separation: 0.283795
-      wheel_radius: 0.03157
-      right_wheel_radius_multiplier: 1.0006331117442229
+      wheel_separation: 0.75
+      wheel_radius: 0.2
+      right_wheel_radius_multiplier: 1.0
+      left_wheel_radius_multiplier: 1.0
 
       linear.x.has_velocity_limits: true
       linear.x.min_velocity: -1.5
