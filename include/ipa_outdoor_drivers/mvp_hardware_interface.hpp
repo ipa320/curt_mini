@@ -62,19 +62,21 @@ private:
   double right_wheel_position_state_;
   double right_wheel_velocity_state_;
 
-  int32_t prev_left_wheel_raw_;
-  int32_t prev_right_wheel_raw_;
-  int odom_left_overflow_;
-  int odom_right_overflow_;
+  int32_t read_left_wheel_raw_;
+  int32_t read_right_wheel_raw_;
+  int32_t write_left_wheel_raw_;
+  int32_t write_right_wheel_raw_;
 
   double update_rate_;
 
   static constexpr double ENCODER_RESOLUTION = 2048; // 512 * 4
 
+  static constexpr double GEAR_TRANSMISSION = 32;
+
   // Store time between update loops
   rclcpp::Clock clock_;
   rclcpp::Time last_timestamp_;
-  rclcpp::Time current_timestamp; // Avoid initialization on each read
+  rclcpp::Time current_timestamp_; // Avoid initialization on each read
 
   // Store the wheeled robot position
   double base_x_, base_y_, base_theta_;
