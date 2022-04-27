@@ -33,6 +33,8 @@
 #include "rclcpp_lifecycle/node_interfaces/lifecycle_node_interface.hpp"
 #include "rclcpp_lifecycle/state.hpp"
 
+#include "ether_ros2/mvp_setup.h"
+
 namespace ipa_outdoor_drivers
 {
 class MvpHardwareInterface : public hardware_interface::BaseInterface<hardware_interface::SystemInterface> 
@@ -64,8 +66,8 @@ private:
 
   int32_t read_left_wheel_raw_;
   int32_t read_right_wheel_raw_;
-  int32_t write_left_wheel_raw_;
-  int32_t write_right_wheel_raw_;
+  int16_t write_left_wheel_raw_;
+  int16_t write_right_wheel_raw_;
 
   double update_rate_;
 
@@ -78,8 +80,7 @@ private:
   rclcpp::Time last_timestamp_;
   rclcpp::Time current_timestamp_; // Avoid initialization on each read
 
-  // Store the wheeled robot position
-  double base_x_, base_y_, base_theta_;
+  MvpSetup mvp_motors_;
 };
 
 } // namespace mvp_system

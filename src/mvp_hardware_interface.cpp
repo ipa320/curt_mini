@@ -120,7 +120,8 @@ hardware_interface::return_type MvpHardwareInterface::start()
   right_wheel_position_state_ = 0;
 
   ////////////////// ACTIVATE MOTORS ////////////////
-
+  mvp_motors_.initializeMotors();
+  
   status_ = hardware_interface::status::STARTED;
 
   last_timestamp_ = clock_.now();
@@ -131,6 +132,7 @@ hardware_interface::return_type MvpHardwareInterface::start()
 hardware_interface::return_type MvpHardwareInterface::stop()
 {
   ////////////////// DEACTIVATE MOTORS ////////////////
+  mvp_motors_.closeMotors();
 
   status_ = hardware_interface::status::STOPPED;
 
@@ -140,6 +142,7 @@ hardware_interface::return_type MvpHardwareInterface::stop()
 hardware_interface::return_type MvpHardwareInterface::read()
 {
   // get encoder data convert to SI units and save them in position and velocity state member variables
+  mvp_motors_.getMotorRPM(read_left_wheel_raw_, read_right_wheel_raw_);
 
   current_timestamp_ = clock_.now();
   update_rate_ = current_timestamp_.seconds() - last_timestamp_.seconds();
@@ -158,7 +161,9 @@ hardware_interface::return_type MvpHardwareInterface::write()
 {
   write_left_wheel_raw_ = left_wheel_velocity_command_ * GEAR_TRANSMISSION * (60 / (2 * M_PI));
   write_right_wheel_raw_ = right_wheel_velocity_command_ * GEAR_TRANSMISSION * (60 / (2 * M_PI));
+
   // send the received commands (command member variables) to the motors (in RPM)
+  mvp_motors_.setMotorRPM(write_left_wheel_raw_, write_right_wheel_raw_);
 
   return hardware_interface::return_type::OK;
 }

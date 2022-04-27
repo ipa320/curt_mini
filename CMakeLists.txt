@@ -16,6 +16,9 @@ find_package(hardware_interface REQUIRED)
 find_package(pluginlib REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rclcpp_lifecycle REQUIRED)
+find_package(ether_ros2 REQUIRED)
+
+include_directories(include)
 
 add_library(
   ${PROJECT_NAME}
@@ -35,6 +38,7 @@ ament_target_dependencies(
   pluginlib
   rclcpp
   rclcpp_lifecycle
+  ether_ros2
 )
 
 # Causes the visibility macros to use dllexport rather than dllimport,
@@ -76,5 +80,6 @@ ament_export_dependencies(
   pluginlib
   rclcpp
   rclcpp_lifecycle
+  ether_ros2
 )
 ament_package()
