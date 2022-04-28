@@ -18,18 +18,6 @@ def generate_launch_description():
     robot_description_path = os.path.join(sim_dir, 'urdf', 'mvp.urdf.xacro')
     robot_description = xacro.process_file(robot_description_path).toxml()
 
-    joint_state_broadcaster_spawner = Node(
-        package="controller_manager",
-        executable="spawner",
-        arguments=["joint_state_broadcaster", "--controller-manager", "/controller_manager"],
-    )
-
-    robot_controller_spawner = Node(
-        package="controller_manager",
-        executable="spawner",
-        arguments=["diffdrive_controller", "-c", "/controller_manager"],
-    )
-
     controller_manager_node = Node(
         package='controller_manager',
         executable='ros2_control_node',
@@ -37,12 +25,24 @@ def generate_launch_description():
             {'robot_description': robot_description},
             ros2_control_yaml_path
         ],
-        remappings=[
-            ('/cmd_vel', 'cmd_vel'),
-            ('/odom', 'odom'),
-            ('/tf', 'tf')
-        ],
-        output='screen'
+        output={
+            "stdout": "screen",
+            "stderr": "screen",
+        },
+    )
+
+    joint_state_broadcaster_spawner = Node(
+        package="controller_manager",
+        executable="spawner.py",
+        arguments=["diff_drive_controller"],
+        output="screen",
+    )
+
+    robot_controller_spawner = Node(
+        package="controller_manager",
+        executable="spawner.py",
+        arguments=["joint_state_broadcaster"],
+        output="screen",
     )
 
     return LaunchDescription([
