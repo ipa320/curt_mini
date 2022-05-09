@@ -32,9 +32,11 @@
 #include "rclcpp/time.hpp"
 #include "rclcpp_lifecycle/node_interfaces/lifecycle_node_interface.hpp"
 #include "rclcpp_lifecycle/state.hpp"
+#include "rclcpp/rclcpp.hpp"
 
-#include "ether_ros2/mvp_setup.h"
-
+#include "ipa_outdoor_drivers/ethercat_wrapper.h"
+#include "ipa_outdoor_drivers/mcDSAE25.h"
+#include "ipa_outdoor_drivers/enums.h"
 namespace ipa_outdoor_drivers
 {
 class MvpHardwareInterface : public hardware_interface::BaseInterface<hardware_interface::SystemInterface> 
@@ -57,6 +59,12 @@ public:
   hardware_interface::return_type write() override;
 
 private:
+  void statecheck();
+
+  EthercatWrapper ethercat_wrapper_;
+  mcDSAE25 left_motor_;
+  mcDSAE25 right_motor_;
+
   double left_wheel_velocity_command_;
   double left_wheel_position_state_;
   double left_wheel_velocity_state_;
@@ -71,16 +79,13 @@ private:
 
   double update_rate_;
 
-  static constexpr double ENCODER_RESOLUTION = 2048; // 512 * 4
-
-  static constexpr double GEAR_TRANSMISSION = 32;
+  double GEAR_RATIO;
+  std::string INTERFACE;
 
   // Store time between update loops
   rclcpp::Clock clock_;
   rclcpp::Time last_timestamp_;
   rclcpp::Time current_timestamp_; // Avoid initialization on each read
-
-  MvpSetup mvp_motors_;
 };
 
 } // namespace mvp_system

@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include "ipa_outdoor_drivers/mvp_hardware_interface.hpp"
+
 #include <chrono>
 #include <cmath>
 #include <limits>
@@ -23,63 +24,75 @@
 #include "rclcpp/clock.hpp"
 #include "rclcpp/rclcpp.hpp"
 
-namespace ipa_outdoor_drivers
-{
-hardware_interface::return_type MvpHardwareInterface::configure(
-  const hardware_interface::HardwareInfo & info)
-{
-  if (configure_default(info) != hardware_interface::return_type::OK)
-  {
+namespace ipa_outdoor_drivers {
+hardware_interface::return_type
+MvpHardwareInterface::configure(const hardware_interface::HardwareInfo &info) {
+  if (configure_default(info) != hardware_interface::return_type::OK) {
     return hardware_interface::return_type::ERROR;
   }
 
-  for (const hardware_interface::ComponentInfo & joint : info_.joints)
-  {
-    // DiffBotSystem has exactly two states and one command interface on each joint
-    if (joint.command_interfaces.size() != 1)
-    {
-      RCLCPP_FATAL(
-        rclcpp::get_logger("MvpHardwareInterface"),
-        "Joint '%s' has %zu command interfaces found. 1 expected.", joint.name.c_str(),
-        joint.command_interfaces.size());
+  // get parameters from urdf setting
+  GEAR_RATIO = std::stod(info_.hardware_parameters["gear_ratio"]);
+  INTERFACE = info_.hardware_parameters["interface"];
+  RCLCPP_INFO(rclcpp::get_logger("MvpHardwareInterface"),
+                "Gear Ratio: %f", GEAR_RATIO);
+  RCLCPP_INFO(rclcpp::get_logger("MvpHardwareInterface"),
+                "Interface: %s", INTERFACE.c_str());
+
+  for (const hardware_interface::ComponentInfo &joint : info_.joints) {
+    // DiffBotSystem has exactly two states and one command interface on each
+    // joint
+    if (joint.command_interfaces.size() != 1) {
+      RCLCPP_FATAL(rclcpp::get_logger("MvpHardwareInterface"),
+                   "Joint '%s' has %zu command interfaces found. 1 expected.",
+                   joint.name.c_str(), joint.command_interfaces.size());
       return hardware_interface::return_type::ERROR;
     }
 
-    if (joint.command_interfaces[0].name != hardware_interface::HW_IF_VELOCITY)
-    {
+    if (joint.command_interfaces[0].name !=
+        hardware_interface::HW_IF_VELOCITY) {
       RCLCPP_FATAL(
-        rclcpp::get_logger("MvpHardwareInterface"),
-        "Joint '%s' have %s command interfaces found. '%s' expected.", joint.name.c_str(),
-        joint.command_interfaces[0].name.c_str(), hardware_interface::HW_IF_VELOCITY);
+          rclcpp::get_logger("MvpHardwareInterface"),
+          "Joint '%s' have %s command interfaces found. '%s' expected.",
+          joint.name.c_str(), joint.command_interfaces[0].name.c_str(),
+          hardware_interface::HW_IF_VELOCITY);
       return hardware_interface::return_type::ERROR;
     }
 
-    if (joint.state_interfaces.size() != 2)
-    {
-      RCLCPP_FATAL(
-        rclcpp::get_logger("MvpHardwareInterface"),
-        "Joint '%s' has %zu state interface. 2 expected.", joint.name.c_str(),
-        joint.state_interfaces.size());
+    if (joint.state_interfaces.size() != 2) {
+      RCLCPP_FATAL(rclcpp::get_logger("MvpHardwareInterface"),
+                   "Joint '%s' has %zu state interface. 2 expected.",
+                   joint.name.c_str(), joint.state_interfaces.size());
       return hardware_interface::return_type::ERROR;
     }
 
-    if (joint.state_interfaces[0].name != hardware_interface::HW_IF_POSITION)
-    {
+    if (joint.state_interfaces[0].name != hardware_interface::HW_IF_POSITION) {
       RCLCPP_FATAL(
-        rclcpp::get_logger("MvpHardwareInterface"),
-        "Joint '%s' have '%s' as first state interface. '%s' expected.", joint.name.c_str(),
-        joint.state_interfaces[0].name.c_str(), hardware_interface::HW_IF_POSITION);
+          rclcpp::get_logger("MvpHardwareInterface"),
+          "Joint '%s' have '%s' as first state interface. '%s' expected.",
+          joint.name.c_str(), joint.state_interfaces[0].name.c_str(),
+          hardware_interface::HW_IF_POSITION);
       return hardware_interface::return_type::ERROR;
     }
 
-    if (joint.state_interfaces[1].name != hardware_interface::HW_IF_VELOCITY)
-    {
+    if (joint.state_interfaces[1].name != hardware_interface::HW_IF_VELOCITY) {
       RCLCPP_FATAL(
-        rclcpp::get_logger("MvpHardwareInterface"),
-        "Joint '%s' have '%s' as second state interface. '%s' expected.", joint.name.c_str(),
-        joint.state_interfaces[1].name.c_str(), hardware_interface::HW_IF_VELOCITY);
+          rclcpp::get_logger("MvpHardwareInterface"),
+          "Joint '%s' have '%s' as second state interface. '%s' expected.",
+          joint.name.c_str(), joint.state_interfaces[1].name.c_str(),
+          hardware_interface::HW_IF_VELOCITY);
       return hardware_interface::return_type::ERROR;
     }
+  }
+
+  // initialize ethercat
+  auto ethercat_msg = ethercat_wrapper_.initializeEthercat(INTERFACE.c_str());
+  if (!ethercat_msg.has_value()) {
+    RCLCPP_ERROR(rclcpp::get_logger("MvpHardwareInterface"),
+                 ethercat_msg.error());
+  } else {
+    RCLCPP_INFO(rclcpp::get_logger("MvpHardwareInterface"),
+                ethercat_msg.value());
   }
 
   clock_ = rclcpp::Clock();
@@ -87,32 +100,37 @@ hardware_interface::return_type MvpHardwareInterface::configure(
   return hardware_interface::return_type::OK;
 }
 
-std::vector<hardware_interface::StateInterface> MvpHardwareInterface::export_state_interfaces()
-{
+std::vector<hardware_interface::StateInterface>
+MvpHardwareInterface::export_state_interfaces() {
   std::vector<hardware_interface::StateInterface> state_interfaces;
   state_interfaces.emplace_back(hardware_interface::StateInterface(
-    "left_motor", hardware_interface::HW_IF_POSITION, &left_wheel_position_state_));
+      "left_motor", hardware_interface::HW_IF_POSITION,
+      &left_wheel_position_state_));
   state_interfaces.emplace_back(hardware_interface::StateInterface(
-    "left_motor", hardware_interface::HW_IF_VELOCITY, &left_wheel_velocity_state_));
+      "left_motor", hardware_interface::HW_IF_VELOCITY,
+      &left_wheel_velocity_state_));
   state_interfaces.emplace_back(hardware_interface::StateInterface(
-    "right_motor", hardware_interface::HW_IF_POSITION, &right_wheel_position_state_));
+      "right_motor", hardware_interface::HW_IF_POSITION,
+      &right_wheel_position_state_));
   state_interfaces.emplace_back(hardware_interface::StateInterface(
-    "right_motor", hardware_interface::HW_IF_VELOCITY, &right_wheel_velocity_state_));
+      "right_motor", hardware_interface::HW_IF_VELOCITY,
+      &right_wheel_velocity_state_));
   return state_interfaces;
 }
 
-std::vector<hardware_interface::CommandInterface> MvpHardwareInterface::export_command_interfaces()
-{
+std::vector<hardware_interface::CommandInterface>
+MvpHardwareInterface::export_command_interfaces() {
   std::vector<hardware_interface::CommandInterface> command_interfaces;
   command_interfaces.emplace_back(hardware_interface::CommandInterface(
-    "left_motor", hardware_interface::HW_IF_VELOCITY, &left_wheel_velocity_command_));
+      "left_motor", hardware_interface::HW_IF_VELOCITY,
+      &left_wheel_velocity_command_));
   command_interfaces.emplace_back(hardware_interface::CommandInterface(
-    "right_motor", hardware_interface::HW_IF_VELOCITY, &right_wheel_velocity_command_));
+      "right_motor", hardware_interface::HW_IF_VELOCITY,
+      &right_wheel_velocity_command_));
   return command_interfaces;
 }
 
-hardware_interface::return_type MvpHardwareInterface::start()
-{
+hardware_interface::return_type MvpHardwareInterface::start() {
   // init variables
   left_wheel_velocity_command_ = 0;
   left_wheel_position_state_ = 0;
@@ -120,8 +138,34 @@ hardware_interface::return_type MvpHardwareInterface::start()
   right_wheel_position_state_ = 0;
 
   ////////////////// ACTIVATE MOTORS ////////////////
-  mvp_motors_.initializeMotors();
-  
+  left_motor_.setSlave(&ec_slave[1], 1);
+  RCLCPP_INFO(rclcpp::get_logger("MvpHardwareInterface"),
+              "State Machine nach Initialisierung, state=%d\n",
+              left_motor_.sdoReadInit(1, ec_SDOread));
+
+  right_motor_.setSlave(&ec_slave[2], 2);
+  RCLCPP_INFO(rclcpp::get_logger("MvpHardwareInterface"),
+              "State Machine nach Initialisierung, state=%d\n",
+              right_motor_.sdoReadInit(2, ec_SDOread));
+
+  auto slave_msg = ethercat_wrapper_.setupSlaves();
+  if (!slave_msg.has_value()) {
+    RCLCPP_ERROR(rclcpp::get_logger("MvpHardwareInterface"), slave_msg.error());
+  } else {
+    RCLCPP_INFO(rclcpp::get_logger("MvpHardwareInterface"), slave_msg.value());
+  }
+
+  RCLCPP_INFO(rclcpp::get_logger("MvpHardwareInterface"),
+              "\n\nState Machine nach setupSlave, state=%d\n",
+              left_motor_.sdoReadInit(1, ec_SDOread));
+
+  RCLCPP_INFO(rclcpp::get_logger("MvpHardwareInterface"),
+              "State Machine nach setupSlave, state=%d\n\n\n\n",
+              right_motor_.sdoReadInit(2, ec_SDOread));
+
+  left_motor_.changeStatus(ipa_outdoor_drivers::Operation_Enabled);
+  right_motor_.changeStatus(ipa_outdoor_drivers::Operation_Enabled);
+
   status_ = hardware_interface::status::STARTED;
 
   last_timestamp_ = clock_.now();
@@ -129,26 +173,30 @@ hardware_interface::return_type MvpHardwareInterface::start()
   return hardware_interface::return_type::OK;
 }
 
-hardware_interface::return_type MvpHardwareInterface::stop()
-{
+hardware_interface::return_type MvpHardwareInterface::stop() {
   ////////////////// DEACTIVATE MOTORS ////////////////
-  mvp_motors_.closeMotors();
+  ethercat_wrapper_.close();
 
   status_ = hardware_interface::status::STOPPED;
 
   return hardware_interface::return_type::OK;
 }
 
-hardware_interface::return_type MvpHardwareInterface::read()
-{
-  // get encoder data convert to SI units and save them in position and velocity state member variables
-  mvp_motors_.getMotorRPM(read_left_wheel_raw_, read_right_wheel_raw_);
+hardware_interface::return_type MvpHardwareInterface::read() {
+  ethercat_wrapper_.datacycle_callback();
+  statecheck();
+  // get encoder data convert to SI units and save them in position and velocity
+  // state member variables
+  read_left_wheel_raw_ = left_motor_.getRPM();
+  read_right_wheel_raw_ = right_motor_.getRPM();
 
   current_timestamp_ = clock_.now();
   update_rate_ = current_timestamp_.seconds() - last_timestamp_.seconds();
 
-  left_wheel_velocity_state_ = read_left_wheel_raw_ * (2 * M_PI / 60) * (1 / GEAR_TRANSMISSION);
-  right_wheel_velocity_state_ = read_right_wheel_raw_ * (2 * M_PI / 60) * (1 / GEAR_TRANSMISSION);
+  left_wheel_velocity_state_ =
+      read_left_wheel_raw_ * (2 * M_PI / 60) * (1 / GEAR_RATIO);
+  right_wheel_velocity_state_ =
+      read_right_wheel_raw_ * (2 * M_PI / 60) * (1 / GEAR_RATIO);
 
   left_wheel_position_state_ += update_rate_ * left_wheel_velocity_state_;
   right_wheel_position_state_ += update_rate_ * right_wheel_velocity_state_;
@@ -157,19 +205,32 @@ hardware_interface::return_type MvpHardwareInterface::read()
   return hardware_interface::return_type::OK;
 }
 
-hardware_interface::return_type MvpHardwareInterface::write()
-{
-  write_left_wheel_raw_ = left_wheel_velocity_command_ * GEAR_TRANSMISSION * (60 / (2 * M_PI));
-  write_right_wheel_raw_ = right_wheel_velocity_command_ * GEAR_TRANSMISSION * (60 / (2 * M_PI));
+hardware_interface::return_type MvpHardwareInterface::write() {
+  write_left_wheel_raw_ =
+      left_wheel_velocity_command_ * GEAR_RATIO * (60 / (2 * M_PI));
+  write_right_wheel_raw_ =
+      right_wheel_velocity_command_ * GEAR_RATIO * (60 / (2 * M_PI));
 
-  // send the received commands (command member variables) to the motors (in RPM)
-  mvp_motors_.setMotorRPM(write_left_wheel_raw_, write_right_wheel_raw_);
+  // send the received commands (command member variables) to the motors (in
+  // RPM)
+  left_motor_.setRPM(write_left_wheel_raw_);
+  right_motor_.setRPM(write_right_wheel_raw_);
+
+  ethercat_wrapper_.datacycle_callback();
+  statecheck();
 
   return hardware_interface::return_type::OK;
 }
 
-}  // namespace mvp_system
+void MvpHardwareInterface::statecheck() {
+  auto info_msg = ethercat_wrapper_.statecheck_callback();
+  if (info_msg.has_value()) {
+    RCLCPP_ERROR(rclcpp::get_logger("MvpHardwareInterface"), info_msg.value());
+  }
+}
+
+} // namespace ipa_outdoor_drivers
 
 #include "pluginlib/class_list_macros.hpp"
-PLUGINLIB_EXPORT_CLASS(
-  ipa_outdoor_drivers::MvpHardwareInterface, hardware_interface::SystemInterface)
+PLUGINLIB_EXPORT_CLASS(ipa_outdoor_drivers::MvpHardwareInterface,
+                       hardware_interface::SystemInterface)
