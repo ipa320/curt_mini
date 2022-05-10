@@ -13,6 +13,7 @@ int mcDSAE25_PO2SOparam(uint16 slave) {
                 ec_slave[slave].name);
   int retval = 0;
   int8 i8buf;
+  uint8 u8buf;
   uint16 u16buf;
   uint16 u16buf2 = 0x66;
 
@@ -55,6 +56,10 @@ int mcDSAE25_PO2SOparam(uint16 slave) {
   RCLCPP_INFO(rclcpp::get_logger("MvpHardwareInterface"),
                 "Motortyp 0x6402=%x", u16buf2);
 
+  u8buf = 2;  // Motorpolzahl 2
+  RCLCPP_INFO(rclcpp::get_logger("MvpHardwareInterface"),
+                "Motorpolzahl gesetzt=%d", ec_SDOwrite(slave, 0x3910, 0x00, FALSE, sizeof(u8buf), &u8buf, EC_TIMEOUTSAFE));
+  
   return 1;
 }
 
@@ -243,6 +248,8 @@ void mcDSAE25::setRPM(int16 rpm) const {
   int16 i16buf = static_cast<int16>(rpm);
   ec_SDOwrite(slave_nr_, 0x6042, 0x00, FALSE, sizeof(i16buf), &i16buf,
               EC_TIMEOUTSAFE);
+  RCLCPP_INFO(rclcpp::get_logger("MvpHardwareInterface"),
+                "Commanded RPM: %d", rpm);
 }
 
 } // namespace ipa_outdoor_drivers
