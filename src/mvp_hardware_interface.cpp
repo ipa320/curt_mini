@@ -156,13 +156,21 @@ hardware_interface::return_type MvpHardwareInterface::start() {
   }
 
   RCLCPP_INFO(rclcpp::get_logger("MvpHardwareInterface"),
-              "\n\nState Machine nach setupSlave, state=%d\n",
+              "State Machine nach setupSlave, state=%d",
               left_motor_.sdoReadInit(1, ec_SDOread));
 
   RCLCPP_INFO(rclcpp::get_logger("MvpHardwareInterface"),
-              "State Machine nach setupSlave, state=%d\n\n\n\n",
+              "State Machine nach setupSlave, state=%d",
               right_motor_.sdoReadInit(2, ec_SDOread));
 
+  // switch state of state machine 
+  // 1.) SWITCH_ON_DISBALED -> Shutdown
+  left_motor_.changeStatus(ipa_outdoor_drivers::Operation_Enabled);
+  right_motor_.changeStatus(ipa_outdoor_drivers::Operation_Enabled);
+  // 2.) READY_TO_SWITCH_ON -> SWITCH_ON
+  left_motor_.changeStatus(ipa_outdoor_drivers::Operation_Enabled);
+  right_motor_.changeStatus(ipa_outdoor_drivers::Operation_Enabled);
+  // 3.) SWITCH_ON -> Operation_Enabled
   left_motor_.changeStatus(ipa_outdoor_drivers::Operation_Enabled);
   right_motor_.changeStatus(ipa_outdoor_drivers::Operation_Enabled);
 
