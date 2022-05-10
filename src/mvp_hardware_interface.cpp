@@ -204,7 +204,7 @@ hardware_interface::return_type MvpHardwareInterface::read() {
   left_wheel_velocity_state_ =
       read_left_wheel_raw_ * (2 * M_PI / 60) * (1 / GEAR_RATIO);
   right_wheel_velocity_state_ =
-      read_right_wheel_raw_ * (2 * M_PI / 60) * (1 / GEAR_RATIO);
+      -1 * read_right_wheel_raw_ * (2 * M_PI / 60) * (1 / GEAR_RATIO);
 
   left_wheel_position_state_ += update_rate_ * left_wheel_velocity_state_;
   right_wheel_position_state_ += update_rate_ * right_wheel_velocity_state_;
@@ -217,7 +217,7 @@ hardware_interface::return_type MvpHardwareInterface::write() {
   write_left_wheel_raw_ =
       left_wheel_velocity_command_ * GEAR_RATIO * (60 / (2 * M_PI));
   write_right_wheel_raw_ =
-      right_wheel_velocity_command_ * GEAR_RATIO * (60 / (2 * M_PI));
+      -1 * right_wheel_velocity_command_ * GEAR_RATIO * (60 / (2 * M_PI));
 
   // send the received commands (command member variables) to the motors (in
   // RPM)

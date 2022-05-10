@@ -9,8 +9,8 @@ namespace ipa_outdoor_drivers {
 
 int mcDSAE25_PO2SOparam(uint16 slave) {
   RCLCPP_INFO(rclcpp::get_logger("MvpHardwareInterface"),
-                "mcDSAE25setup für slave %d named %s aufgerufen\n", slave,
-                ec_slave[slave].name);
+              "mcDSAE25setup für slave %d named %s aufgerufen\n", slave,
+              ec_slave[slave].name);
   int retval = 0;
   int8 i8buf;
   uint8 u8buf;
@@ -32,34 +32,34 @@ int mcDSAE25_PO2SOparam(uint16 slave) {
 
   i8buf = 2; // Betriebsart Velocity 2
   RCLCPP_INFO(rclcpp::get_logger("MvpHardwareInterface"),
-                "Velocity Betriebsart gesetzt=%d",
-         ec_SDOwrite(slave, 0x6060, 0x00, FALSE, sizeof(i8buf), &i8buf,
-                     EC_TIMEOUTSAFE));
+              "Velocity Betriebsart gesetzt=%d",
+              ec_SDOwrite(slave, 0x6060, 0x00, FALSE, sizeof(i8buf), &i8buf,
+                          EC_TIMEOUTSAFE));
   RCLCPP_INFO(rclcpp::get_logger("MvpHardwareInterface"),
-                "Betriebsart 0x6060 warten");
+              "Betriebsart 0x6060 warten");
   std::this_thread::sleep_for(std::chrono::seconds(1));
-  RCLCPP_INFO(rclcpp::get_logger("MvpHardwareInterface"),
-                "warten vorbei");
+  RCLCPP_INFO(rclcpp::get_logger("MvpHardwareInterface"), "warten vorbei");
 
   u16buf = 0x8001; // Motortyp BLDC - Dieses Register wird mit
                    // miControl-Software nicht verwendet
   ec_SDOwrite(slave, 0x6402, 0x00, FALSE, sizeof(u16buf), &u16buf,
               EC_TIMEOUTSAFE);
   RCLCPP_INFO(rclcpp::get_logger("MvpHardwareInterface"),
-                "Motortyp 0x6402 warten");
+              "Motortyp 0x6402 warten");
   std::this_thread::sleep_for(std::chrono::seconds(1));
-  RCLCPP_INFO(rclcpp::get_logger("MvpHardwareInterface"),
-                "warten vorbei");
+  RCLCPP_INFO(rclcpp::get_logger("MvpHardwareInterface"), "warten vorbei");
 
   ec_SDOread(slave, 0x6402, 0x00, FALSE, &uint16size, &u16buf2,
              EC_TIMEOUTSAFE); // Aktualisiere State-wert
-  RCLCPP_INFO(rclcpp::get_logger("MvpHardwareInterface"),
-                "Motortyp 0x6402=%x", u16buf2);
+  RCLCPP_INFO(rclcpp::get_logger("MvpHardwareInterface"), "Motortyp 0x6402=%x",
+              u16buf2);
 
-  u8buf = 2;  // Motorpolzahl 2
+  u8buf = 2; // Motorpolzahl 2
   RCLCPP_INFO(rclcpp::get_logger("MvpHardwareInterface"),
-                "Motorpolzahl gesetzt=%d", ec_SDOwrite(slave, 0x3910, 0x00, FALSE, sizeof(u8buf), &u8buf, EC_TIMEOUTSAFE));
-  
+              "Motorpolzahl gesetzt=%d",
+              ec_SDOwrite(slave, 0x3910, 0x00, FALSE, sizeof(u8buf), &u8buf,
+                          EC_TIMEOUTSAFE));
+
   return 1;
 }
 
@@ -83,15 +83,15 @@ InternalState mcDSAE25::status() {
              EC_TIMEOUTSAFE);
   switch (0b0000000000001111 & u16buf) {
   case 0b0000:
-    RCLCPP_INFO(rclcpp::get_logger("MvpHardwareInterface"),
-                "StatusWord: %d", u16buf);
+    RCLCPP_INFO(rclcpp::get_logger("MvpHardwareInterface"), "StatusWord: %d",
+                u16buf);
     if (0b0000000001000000 & u16buf) {
       RCLCPP_INFO(rclcpp::get_logger("MvpHardwareInterface"),
-                "Zustand Switch_On_Disabled");
+                  "Zustand Switch_On_Disabled");
       return Switch_On_Disabled;
     } else {
       RCLCPP_INFO(rclcpp::get_logger("MvpHardwareInterface"),
-                "Slave %d\nZustand Not_Ready_To_Switch_On", slave_nr_);
+                  "Slave %d\nZustand Not_Ready_To_Switch_On", slave_nr_);
       return Not_Ready_To_Switch_On;
     }
   case 0b0001:
@@ -105,7 +105,7 @@ InternalState mcDSAE25::status() {
   case 0b0111:
     if ((0b0000000001100000 & u16buf) == 0b0000000000100000) {
       RCLCPP_INFO(rclcpp::get_logger("MvpHardwareInterface"),
-                "CiA402-Status: Operation_Enabled");
+                  "CiA402-Status: Operation_Enabled");
       return Operation_Enabled;
     } else {
       return Quick_Stop_Active;
@@ -115,8 +115,7 @@ InternalState mcDSAE25::status() {
   case 0b1000:
     return Fault;
   }
-  RCLCPP_INFO(rclcpp::get_logger("MvpHardwareInterface"),
-                "Return unknown");
+  RCLCPP_INFO(rclcpp::get_logger("MvpHardwareInterface"), "Return unknown");
   return Unknown;
 }
 
@@ -124,13 +123,13 @@ void mcDSAE25::setCommand(const InternalCommand &command) {
   uint16 u16buf;
   switch (command) {
   case Shutdown:
-    RCLCPP_INFO(rclcpp::get_logger("MvpHardwareInterface"),
-                "Shutdown %s", slave_->name);
+    RCLCPP_INFO(rclcpp::get_logger("MvpHardwareInterface"), "Shutdown %s",
+                slave_->name);
     u16buf = 0x06;
     break;
   case Switch_On:
-  RCLCPP_INFO(rclcpp::get_logger("MvpHardwareInterface"),
-                "Switch_ON %s", slave_->name);
+    RCLCPP_INFO(rclcpp::get_logger("MvpHardwareInterface"), "Switch_ON %s",
+                slave_->name);
     u16buf = 0x07;
     break;
   case Disable_Voltage:
@@ -140,9 +139,8 @@ void mcDSAE25::setCommand(const InternalCommand &command) {
     break;
   case Quick_Stop:
     u16buf = 0x02;
-    RCLCPP_INFO(rclcpp::get_logger("MvpHardwareInterface"),
-                "Quick_Stop %s", slave_->name);
-    *reinterpret_cast<uint16 *>(slave_->outputs) = 0b010;
+    RCLCPP_INFO(rclcpp::get_logger("MvpHardwareInterface"), "Quick_Stop %s",
+                slave_->name);
     break;
   case Disable_Operation:
     u16buf = 0x07;
@@ -156,8 +154,8 @@ void mcDSAE25::setCommand(const InternalCommand &command) {
     break;
   case Faulut_Reset:
     u16buf = 0x8F;
-    RCLCPP_INFO(rclcpp::get_logger("MvpHardwareInterface"),
-                "Fault Reset %s", slave_->name);
+    RCLCPP_INFO(rclcpp::get_logger("MvpHardwareInterface"), "Fault Reset %s",
+                slave_->name);
     break;
   }
   ec_SDOwrite(slave_nr_, 0x6040, 0x00, FALSE, sizeof(u16buf), &u16buf,
@@ -248,8 +246,8 @@ void mcDSAE25::setRPM(int16 rpm) const {
   int16 i16buf = static_cast<int16>(rpm);
   ec_SDOwrite(slave_nr_, 0x6042, 0x00, FALSE, sizeof(i16buf), &i16buf,
               EC_TIMEOUTSAFE);
-  RCLCPP_INFO(rclcpp::get_logger("MvpHardwareInterface"),
-                "Commanded RPM: %d", rpm);
+  // RCLCPP_INFO(rclcpp::get_logger("MvpHardwareInterface"), "Commanded RPM: %d",
+  //             rpm);
 }
 
 } // namespace ipa_outdoor_drivers
