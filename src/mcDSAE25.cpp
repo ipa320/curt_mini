@@ -54,12 +54,6 @@ int mcDSAE25_PO2SOparam(uint16 slave) {
   RCLCPP_INFO(rclcpp::get_logger("MvpHardwareInterface"), "Motortyp 0x6402=%x",
               u16buf2);
 
-  u8buf = 2; // Motorpolzahl 2
-  RCLCPP_INFO(rclcpp::get_logger("MvpHardwareInterface"),
-              "Motorpolzahl gesetzt=%d",
-              ec_SDOwrite(slave, 0x3910, 0x00, FALSE, sizeof(u8buf), &u8buf,
-                          EC_TIMEOUTSAFE));
-
   return 1;
 }
 
