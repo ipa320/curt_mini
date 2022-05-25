@@ -19,17 +19,6 @@ int mcDSAE25_PO2SOparam(uint16 slave) {
 
   int uint16size = sizeof(u16buf);
 
-  // Steuerwort - Betrieb sperren
-  u16buf = 0x07;
-  retval += ec_SDOwrite(slave, 0x6040, 0x00, FALSE, sizeof(u16buf), &u16buf,
-                        EC_TIMEOUTSAFE);
-  std::this_thread::sleep_for(std::chrono::seconds(1));
-  // Fehler löschen
-  u16buf = 0x8F;
-  retval += ec_SDOwrite(slave, 0x6040, 0x00, FALSE, sizeof(u16buf), &u16buf,
-                        EC_TIMEOUTSAFE);
-  std::this_thread::sleep_for(std::chrono::seconds(1));
-
   i8buf = 2; // Betriebsart Velocity 2
   RCLCPP_INFO(rclcpp::get_logger("MvpHardwareInterface"),
               "Velocity Betriebsart gesetzt=%d",
