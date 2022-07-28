@@ -11,9 +11,7 @@ int mcDSAE25_PO2SOparam(uint16 slave) {
   RCLCPP_INFO(rclcpp::get_logger("MvpHardwareInterface"),
               "mcDSAE25setup für slave %d named %s aufgerufen\n", slave,
               ec_slave[slave].name);
-  int retval = 0;
   int8 i8buf;
-  uint8 u8buf;
   uint16 u16buf;
   uint16 u16buf2 = 0x66;
 
@@ -186,6 +184,7 @@ bool mcDSAE25::changeStatus(const InternalState &targetStatus) {
     case Operation_Enabled:
       setCommand(Disable_Operation); // ist schon im Zielzustand
       std::this_thread::sleep_for(std::chrono::seconds(1));
+      break;
     case Start:
       return 0; // Gerät wird noch Initialisiert
     case Not_Ready_To_Switch_On:
@@ -209,6 +208,8 @@ bool mcDSAE25::changeStatus(const InternalState &targetStatus) {
     case Fault:
       setCommand(Faulut_Reset);
       // std::this_thread::sleep_for (std::chrono::seconds(1));
+      break;
+    default:
       break;
     }
     break;
