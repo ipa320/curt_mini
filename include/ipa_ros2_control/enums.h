@@ -1,6 +1,6 @@
 #pragma once
 
-namespace ipa_outdoor_drivers
+namespace ipa_ros2_control
 {
 enum InternalState
 {
@@ -26,4 +26,4 @@ enum InternalCommand
   Enable_Operation,
   Faulut_Reset
 };
-}  // namespace ipa_outdoor_drivers
+}  // namespace ipa_ros2_control

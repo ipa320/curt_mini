@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.5)
-project(ipa_outdoor_drivers)
+project(ipa_ros2_control)
 
 # Default to C++14
 if(NOT CMAKE_CXX_STANDARD)
@@ -77,7 +77,7 @@ install(
 # )
 
 install(
-  DIRECTORY config include launch
+  DIRECTORY include launch
   DESTINATION share/${PROJECT_NAME}
 )
 

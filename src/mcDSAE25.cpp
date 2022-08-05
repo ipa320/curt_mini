@@ -1,25 +1,41 @@
-#include "ipa_outdoor_drivers/mcDSAE25.h"
+#include "ipa_ros2_control/mcDSAE25.h"
 #include "soem_ros2/ethercatcoe.h"
 #include "soem_ros2/ethercattype.h"
 #include <chrono>
 #include <rclcpp/logging.hpp>
 #include <thread>
 
-namespace ipa_outdoor_drivers {
+namespace ipa_ros2_control {
 
 int mcDSAE25_PO2SOparam(uint16 slave) {
   RCLCPP_INFO(rclcpp::get_logger("MvpHardwareInterface"),
               "mcDSAE25setup für slave %d named %s aufgerufen\n", slave,
               ec_slave[slave].name);
   int8 i8buf;
+  int32 i32buf;
   uint16 u16buf;
   uint16 u16buf2 = 0x66;
 
   int uint16size = sizeof(u16buf);
 
+  // Steuerwort - Betrieb sperren
+  u16buf = 0x07;
+  RCLCPP_INFO(rclcpp::get_logger("MvpHardwareInterface"),
+              "Steuerwort - Betrieb sperren");
+  ec_SDOwrite(slave, 0x6040, 0x00, FALSE, sizeof(u16buf), &u16buf,
+                        EC_TIMEOUTSAFE);
+  std::this_thread::sleep_for(std::chrono::seconds(1));
+  // Fehler löschen
+  u16buf = 0x8F;
+  RCLCPP_INFO(rclcpp::get_logger("MvpHardwareInterface"),
+              "Fehler loeschen");
+  ec_SDOwrite(slave, 0x6040, 0x00, FALSE, sizeof(u16buf), &u16buf,
+                        EC_TIMEOUTSAFE);
+  std::this_thread::sleep_for(std::chrono::seconds(1));
+
   i8buf = 2; // Betriebsart Velocity 2
   RCLCPP_INFO(rclcpp::get_logger("MvpHardwareInterface"),
-              "Velocity Betriebsart gesetzt=%d",
+              "Velocity Betriebsart gesetzt = %d",
               ec_SDOwrite(slave, 0x6060, 0x00, FALSE, sizeof(i8buf), &i8buf,
                           EC_TIMEOUTSAFE));
   RCLCPP_INFO(rclcpp::get_logger("MvpHardwareInterface"),
@@ -36,9 +52,19 @@ int mcDSAE25_PO2SOparam(uint16 slave) {
   std::this_thread::sleep_for(std::chrono::seconds(1));
   RCLCPP_INFO(rclcpp::get_logger("MvpHardwareInterface"), "warten vorbei");
 
+  i32buf = 64; // Drehzahldimnesionsfaktor - Zaehler = 64
+  RCLCPP_INFO(rclcpp::get_logger("MvpHardwareInterface"),
+              "Drehzahldimnesionsfaktor - Zaehler gesetzt = %d",
+              ec_SDOwrite(slave, 0x604C, 0x01, FALSE, sizeof(i32buf), &i32buf,
+              EC_TIMEOUTSAFE));
+  RCLCPP_INFO(rclcpp::get_logger("MvpHardwareInterface"),
+              "Dimensionsfaktor Zaehler 0x604C warten");
+  std::this_thread::sleep_for(std::chrono::seconds(1));
+  RCLCPP_INFO(rclcpp::get_logger("MvpHardwareInterface"), "warten vorbei");
+
   ec_SDOread(slave, 0x6402, 0x00, FALSE, &uint16size, &u16buf2,
              EC_TIMEOUTSAFE); // Aktualisiere State-wert
-  RCLCPP_INFO(rclcpp::get_logger("MvpHardwareInterface"), "Motortyp 0x6402=%x",
+  RCLCPP_INFO(rclcpp::get_logger("MvpHardwareInterface"), "Motortyp 0x6402 = %x",
               u16buf2);
 
   return 1;
@@ -230,8 +256,8 @@ void mcDSAE25::setRPM(int16 rpm) const {
   int16 i16buf = static_cast<int16>(rpm);
   ec_SDOwrite(slave_nr_, 0x6042, 0x00, FALSE, sizeof(i16buf), &i16buf,
               EC_TIMEOUTSAFE);
-  // RCLCPP_INFO(rclcpp::get_logger("MvpHardwareInterface"), "Commanded RPM: %d",
-  //             rpm);
+  RCLCPP_INFO(rclcpp::get_logger("MvpHardwareInterface"), "Commanded RPM: %d",
+              rpm);
 }
 
-} // namespace ipa_outdoor_drivers
+} // namespace ipa_ros2_control

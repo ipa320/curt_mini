@@ -1,11 +1,11 @@
 #pragma once
 
-#include "ipa_outdoor_drivers/enums.h"
+#include "ipa_ros2_control/enums.h"
 #include "soem_ros2/osal.h"
 #include <soem_ros2/soem.h>
 #include <rclcpp/logger.hpp>
 #include <vector>
-namespace ipa_outdoor_drivers
+namespace ipa_ros2_control
 {
 
 int mcDSAE25_PO2SOparam(uint16 slave);
@@ -42,4 +42,4 @@ private:
   ec_slavet* slave_;
   uint16 slave_nr_;
 };
-}  // namespace ipa_outdoor_drivers
+}  // namespace ipa_ros2_control

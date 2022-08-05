@@ -34,10 +34,10 @@
 #include "rclcpp_lifecycle/state.hpp"
 #include "rclcpp/rclcpp.hpp"
 
-#include "ipa_outdoor_drivers/ethercat_wrapper.h"
-#include "ipa_outdoor_drivers/mcDSAE25.h"
-#include "ipa_outdoor_drivers/enums.h"
-namespace ipa_outdoor_drivers
+#include "ipa_ros2_control/ethercat_wrapper.h"
+#include "ipa_ros2_control/mcDSAE25.h"
+#include "ipa_ros2_control/enums.h"
+namespace ipa_ros2_control
 {
 class MvpHardwareInterface : public hardware_interface::BaseInterface<hardware_interface::SystemInterface> 
 {
@@ -88,6 +88,6 @@ private:
   rclcpp::Time current_timestamp_; // Avoid initialization on each read
 };
 
-} // namespace mvp_system
+} // namespace ipa_ros2_control
 
 #endif // MVP_SYSTEM_HPP_

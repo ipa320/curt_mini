@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "ipa_outdoor_drivers/mvp_hardware_interface.hpp"
+#include "ipa_ros2_control/mvp_hardware_interface.hpp"
 
 #include <chrono>
 #include <cmath>
@@ -24,7 +24,7 @@
 #include "rclcpp/clock.hpp"
 #include "rclcpp/rclcpp.hpp"
 
-namespace ipa_outdoor_drivers {
+namespace ipa_ros2_control {
 hardware_interface::return_type
 MvpHardwareInterface::configure(const hardware_interface::HardwareInfo &info) {
   if (configure_default(info) != hardware_interface::return_type::OK) {
@@ -165,14 +165,14 @@ hardware_interface::return_type MvpHardwareInterface::start() {
 
   // switch state of state machine 
   // 1.) SWITCH_ON_DISBALED -> Shutdown
-  left_motor_.changeStatus(ipa_outdoor_drivers::Operation_Enabled);
-  right_motor_.changeStatus(ipa_outdoor_drivers::Operation_Enabled);
+  left_motor_.changeStatus(ipa_ros2_control::Operation_Enabled);
+  right_motor_.changeStatus(ipa_ros2_control::Operation_Enabled);
   // 2.) READY_TO_SWITCH_ON -> SWITCH_ON
-  left_motor_.changeStatus(ipa_outdoor_drivers::Operation_Enabled);
-  right_motor_.changeStatus(ipa_outdoor_drivers::Operation_Enabled);
+  left_motor_.changeStatus(ipa_ros2_control::Operation_Enabled);
+  right_motor_.changeStatus(ipa_ros2_control::Operation_Enabled);
   // 3.) SWITCH_ON -> Operation_Enabled
-  left_motor_.changeStatus(ipa_outdoor_drivers::Operation_Enabled);
-  right_motor_.changeStatus(ipa_outdoor_drivers::Operation_Enabled);
+  left_motor_.changeStatus(ipa_ros2_control::Operation_Enabled);
+  right_motor_.changeStatus(ipa_ros2_control::Operation_Enabled);
 
   status_ = hardware_interface::status::STARTED;
 
@@ -237,8 +237,8 @@ void MvpHardwareInterface::statecheck() {
   }
 }
 
-} // namespace ipa_outdoor_drivers
+} // namespace ipa_ros2_control
 
 #include "pluginlib/class_list_macros.hpp"
-PLUGINLIB_EXPORT_CLASS(ipa_outdoor_drivers::MvpHardwareInterface,
+PLUGINLIB_EXPORT_CLASS(ipa_ros2_control::MvpHardwareInterface,
                        hardware_interface::SystemInterface)

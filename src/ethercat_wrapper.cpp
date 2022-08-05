@@ -1,5 +1,5 @@
 
-#include "ipa_outdoor_drivers/ethercat_wrapper.h"
+#include "ipa_ros2_control/ethercat_wrapper.h"
 #include <functional>
 #include <memory>
 #include <sstream>
