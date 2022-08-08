@@ -256,8 +256,8 @@ void mcDSAE25::setRPM(int16 rpm) const {
   int16 i16buf = static_cast<int16>(rpm);
   ec_SDOwrite(slave_nr_, 0x6042, 0x00, FALSE, sizeof(i16buf), &i16buf,
               EC_TIMEOUTSAFE);
-  RCLCPP_INFO(rclcpp::get_logger("MvpHardwareInterface"), "Commanded RPM: %d",
-              rpm);
+  RCLCPP_INFO(rclcpp::get_logger("MvpHardwareInterface"), "Commanded RPM: %d, Slave: %d",
+              rpm, slave_nr_);
 }
 
 } // namespace ipa_ros2_control
