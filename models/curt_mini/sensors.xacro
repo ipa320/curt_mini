@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <!-- Package to load velodyne sensor -->
+  <xacro:include filename="$(find velodyne_description)/urdf/VLP-16.urdf.xacro" />
+
+  <!-- IMU -->
+  <joint name="base_link_to_imu" type="fixed">
+    <parent link="base_link" />
+    <child link="imu_link" />
+    <origin xyz="0.0 0.0 0.0" />
+  </joint>
+  <link name="imu_link" />
+
+  <!-- GPS -->
+  <joint name="base_link_to_gps" type="fixed">
+    <parent link="base_link" />
+    <child link="gps_link" />
+    <origin xyz="0.0 0.0 0.0" />
+  </joint>
+  <link name="gps_link" />
+
+  <!-- Velodyne -->
+  <xacro:VLP-16 parent="base_link" name="velodyne" topic="/lidar_points" organize_cloud="false" hz="10" samples="440" gpu="false">
+    <origin xyz="0.25 0.0 0.2" rpy="0 ${PI / 8} 0" />
+  </xacro:VLP-16>
+
+</robot>
