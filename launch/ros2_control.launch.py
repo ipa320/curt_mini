@@ -21,9 +21,6 @@ def launch_ros2_control(context, *args, **kwargs):
 
     urdf_path = os.path.join(robot_dir, 'models', robot.perform(context), 'robot.urdf.xacro')
 
-    gear_ratio = LaunchConfiguration('gear_ratio')
-    interface = LaunchConfiguration('interface')
-
     robot_description = Command(['xacro ', urdf_path, ' gear_ratio:=', gear_ratio, ' interface:=', interface])
 
     controller_manager_node = Node(
@@ -31,7 +28,7 @@ def launch_ros2_control(context, *args, **kwargs):
         executable='ros2_control_node',
         parameters=[
             {'robot_description': robot_description},
-            ros2_control_yaml_path
+            ros2_control_yaml_path,
         ],
         output={
             "stdout": "screen",
@@ -61,7 +58,7 @@ def generate_launch_description():
             'environment',
             default_value='empty',
             description='Setup the environment map that will be loaded',
-            choices=['empty'],
+            choices=['empty', 'acker', 'plant_acker', 'uneven_terrain'],
         )
     )
 
