@@ -1,0 +1,3 @@
+<library path="ipa_ros2_control">
+    <class name="ipa_ros2_control/CurtMiniHardwareInterface" type="ipa_ros2_control::CurtMiniHardwareInterface" base_class_type="hardware_interface::SystemInterface"></class>
+</library>
