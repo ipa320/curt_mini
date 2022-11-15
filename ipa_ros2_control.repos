@@ -1,8 +1,4 @@
 repositories:
-  soem_ros2:
-    type: git
-    url: https://bitbucket.org/edhage/soem_ros2.git
-    version: master
   tl_expected:
     type: git
     url: git@gitlab.cc-asp.fraunhofer.de:ipa323/third-party/tl_expected.git
