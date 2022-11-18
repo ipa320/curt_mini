@@ -22,7 +22,7 @@ diff_drive_controller:
 
     wheel_separation: 0.44
     wheels_per_side: 1  # actually 2, but both are controlled by 1 signal
-    wheel_radius: 0.12
+    wheel_radius: 0.13
 
     wheel_separation_multiplier: 1.0
     right_wheel_radius_multiplier: 1.0
