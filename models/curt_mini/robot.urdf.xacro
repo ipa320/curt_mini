@@ -54,9 +54,9 @@
       </material>
     </visual>
     <collision>
-      <origin xyz="0 0 0" rpy="0 0 0" />
+      <origin xyz="0 0.01 0" rpy="${PI / 2} 0 0" />
       <geometry>
-        <mesh filename="file://$(arg path)/models/curt_mini/meshes/Wheel_01 .STL" />
+        <cylinder radius="${wheel_radius}" length="${wheel_width}"/>
       </geometry>
     </collision>
   </link>
@@ -66,8 +66,9 @@
     <child link="front_right_wheel" />
     <axis xyz="0 -1 0" />
     <dynamics damping="1.0" />
+    <limit effort="${max_effort}" velocity="${max_velocity}" />
   </joint>
-  <xacro:wheel_transmissions prefix="front_right" />
+  <xacro:wheel_transmissions prefix="front_right_motor" />
 
   <link name="front_left_wheel">
     <inertial>
@@ -85,9 +86,9 @@
       </material>
     </visual>
     <collision>
-      <origin xyz="0 0 0" rpy="0 0 0" />
+      <origin xyz="0 -0.01 0" rpy="${PI / 2} 0 0" />
       <geometry>
-        <mesh filename="file://$(arg path)/models/curt_mini/meshes/Wheel_02.STL" />
+        <cylinder radius="${wheel_radius}" length="${wheel_width}"/>
       </geometry>
     </collision>
   </link>
@@ -97,8 +98,9 @@
     <child link="front_left_wheel" />
     <axis xyz="0 -1 0" />
     <dynamics damping="1.0" />
+    <limit effort="${max_effort}" velocity="${max_velocity}" />
   </joint>
-  <xacro:wheel_transmissions prefix="front_left" />
+  <xacro:wheel_transmissions prefix="front_left_motor" />
 
   <link name="back_right_wheel">
     <inertial>
@@ -116,9 +118,9 @@
       </material>
     </visual>
     <collision>
-      <origin xyz="0 0 0" rpy="0 0 0" />
+      <origin xyz="0 0.01 0" rpy="${PI / 2} 0 0" />
       <geometry>
-        <mesh filename="file://$(arg path)/models/curt_mini/meshes/Wheel_03.STL" />
+        <cylinder radius="${wheel_radius}" length="${wheel_width}"/>
       </geometry>
     </collision>
   </link>
@@ -128,8 +130,9 @@
     <child link="back_right_wheel" />
     <axis xyz="0 -1 0" />
     <dynamics damping="1.0" />
+    <limit effort="${max_effort}" velocity="${max_velocity}" />
   </joint>
-  <xacro:wheel_transmissions prefix="back_right" />
+  <xacro:wheel_transmissions prefix="back_right_motor" />
 
   <link name="back_left_wheel">
     <inertial>
@@ -147,9 +150,9 @@
       </material>
     </visual>
     <collision>
-      <origin xyz="0 0 0" rpy="0 0 0" />
+      <origin xyz="0 -0.01 0" rpy="${PI / 2} 0 0" />
       <geometry>
-        <mesh filename="file://$(arg path)/models/curt_mini/meshes/Wheel_04.STL" />
+        <cylinder radius="${wheel_radius}" length="${wheel_width}"/>
       </geometry>
     </collision>
   </link>
@@ -159,8 +162,9 @@
     <child link="back_left_wheel" />
     <axis xyz="0 -1 0" />
     <dynamics damping="1.0" />
+    <limit effort="${max_effort}" velocity="${max_velocity}" />
   </joint>
-  <xacro:wheel_transmissions prefix="back_left" />
+  <xacro:wheel_transmissions prefix="back_left_motor" />
 
   <!-- Import gazebo infos -->
   <xacro:if value="$(arg use_sim_time)" >
