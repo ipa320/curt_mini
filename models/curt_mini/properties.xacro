@@ -5,10 +5,16 @@
     <!-- Constants for robot -->
     <xacro:property name="PI" value="3.1415926535897931" />
 
+    <!-- robot limits -->
+    <xacro:property name="max_effort" value="50.0" />
+    <xacro:property name="max_velocity" value="5.0" />
+    <xacro:property name="wheel_radius" value="0.13" />
+    <xacro:property name="wheel_width" value="0.08" />
+
     <!-- Diff wheel ode params -->
     <xacro:macro name="wheel_ode_params">
-        <mu1 value="100" />
-        <mu2 value="0.2" />
+        <mu1 value="200" />
+        <mu2 value="0.3" />
         <kp value="10000000.0" />
         <kd value="1" />
         <fdir1 value="1 0 0" />
