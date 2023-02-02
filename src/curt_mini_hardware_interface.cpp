@@ -13,6 +13,7 @@
 namespace ipa_ros2_control {
 hardware_interface::return_type CurtMiniHardwareInterface::configure(
     const hardware_interface::HardwareInfo &info) {
+  RCLCPP_INFO(rclcpp::get_logger("CurtMiniHardwareInterface"), "Configure");
   if (configure_default(info) != hardware_interface::return_type::OK) {
     return hardware_interface::return_type::ERROR;
   }
@@ -75,12 +76,18 @@ hardware_interface::return_type CurtMiniHardwareInterface::configure(
       return hardware_interface::return_type::ERROR;
     }
     status_ = hardware_interface::status::CONFIGURED;
-    return hardware_interface::return_type::OK;
+    // return hardware_interface::return_type::OK;
   }
 
+  motor_ids_types_ = {{0x02, motor_driver::MotorType::AK80_9_V1p1}};
+  can_comm_ = "can0";
+  for (const auto &motor_id_type : motor_ids_types_) 
+  {
+    motor_ids_.push_back(motor_id_type.first);
+  }
   // init motor controller
   motor_controller_ = new motor_driver::MotorDriver(
-      motor_ids_, can_comm_, motor_driver::MotorType::AK80_9_V1p1);
+      motor_ids_types_, can_comm_);
 
   return hardware_interface::return_type::OK;
 }
@@ -111,13 +118,17 @@ CurtMiniHardwareInterface::export_command_interfaces() {
     // Map wheel joint name to index
     wheel_joints_[info_.joints[i].name] = i;
 
-    RCLCPP_INFO_STREAM(rclcpp::get_logger("CurtMiniHardwareInterface"),
-                "Wheel joint names and indices are set as follows:\n" << 
-                info_.joints[wheel_joints_["front_left_motor"]].name << " at index: " << wheel_joints_["front_left_motor"] << "\n" <<
-                info_.joints[wheel_joints_["front_right_motor"]].name << " at index: " << wheel_joints_["front_right_motor"] << "\n" <<
-                info_.joints[wheel_joints_["back_left_motor"]].name << " at index: " << wheel_joints_["back_left_motor"] << "\n" <<
-                info_.joints[wheel_joints_["back_right_motor"]].name << " at index: " << wheel_joints_["back_right_motor"]);
-
+    RCLCPP_INFO_STREAM(
+        rclcpp::get_logger("CurtMiniHardwareInterface"),
+        "Wheel joint names and indices are set as follows:\n"
+            << info_.joints[wheel_joints_["front_left_motor"]].name
+            << " at index: " << wheel_joints_["front_left_motor"] << "\n"
+            << info_.joints[wheel_joints_["front_right_motor"]].name
+            << " at index: " << wheel_joints_["front_right_motor"] << "\n"
+            << info_.joints[wheel_joints_["back_left_motor"]].name
+            << " at index: " << wheel_joints_["back_left_motor"] << "\n"
+            << info_.joints[wheel_joints_["back_right_motor"]].name
+            << " at index: " << wheel_joints_["back_right_motor"]);
   }
 
   return command_interfaces;
@@ -136,23 +147,23 @@ hardware_interface::return_type CurtMiniHardwareInterface::start() {
     }
   }
 
-  // set zero position
-  RCLCPP_INFO(rclcpp::get_logger("CurtMiniHardwareInterface"),
-              "Set zero position...");
-  motor_controller_->setZeroPosition(motor_ids_);
-
   // enable motors
   RCLCPP_INFO(rclcpp::get_logger("CurtMiniHardwareInterface"),
               "Enable motors...");
   motor_controller_->enableMotor(motor_ids_);
 
+  // set zero position
+  RCLCPP_INFO(rclcpp::get_logger("CurtMiniHardwareInterface"),
+              "Set zero position...");
+  motor_controller_->setZeroPosition(motor_ids_);
+
   // init command map
-  motor_driver::motorCommand no_command = {0.0, 0.0, k_stiffness_, k_damping_,
-                                           0.0};
-  command_map_ = {{motor_ids_[0], no_command},
-                  {motor_ids_[1], no_command},
-                  {motor_ids_[2], no_command},
-                  {motor_ids_[3], no_command}};
+  motor_driver::motorCommand no_command = {0.0, 0.0, k_stiffness_, k_damping_, 0.0};
+  command_map_ = {{motor_ids_[0], no_command}};
+  // command_map_ = {{motor_ids_[0], no_command},
+  //                 {motor_ids_[1], no_command},
+  //                 {motor_ids_[2], no_command},
+  //                 {motor_ids_[3], no_command}};
 
   status_ = hardware_interface::status::STARTED;
 
@@ -187,21 +198,30 @@ hardware_interface::return_type CurtMiniHardwareInterface::write() {
 void CurtMiniHardwareInterface::writeCommandsToHardware() {
   // only front wheel commands are used
   // left side has to be multiplied with -1 due to the orientation of the motors
-  float diff_speed_left = -1 * hw_commands_[wheel_joints_["front_left_motor"]];
-  float diff_speed_right = hw_commands_[wheel_joints_["front_right_motor"]];
-  RCLCPP_INFO_STREAM(rclcpp::get_logger("CurtMiniHardwareInterface"),
-              "Send left side velocity:\t" << diff_speed_left << "\n" <<
-              "Send right side velocity:\t" << diff_speed_right);
+
+  // motor_driver::motorCommand commandStruct1 = {0, 3.0, 0, 1, 0};
+  // std::map<int, motor_driver::motorCommand> commandMap = {{motor_ids_[0],
+  // commandStruct1}}; auto commandState =
+  // motor_controller_->sendRadCommand(commandMap);
+
+  float diff_speed_left =
+      -1 * hw_commands_[wheel_joints_["front_left_motor"]];
+  float diff_speed_right =
+      hw_commands_[wheel_joints_["front_right_motor"]];
+  RCLCPP_INFO_STREAM(rclcpp::get_logger("CurtMiniHardwareInterface"), "Send left side velocity:\t" << diff_speed_left);
+  RCLCPP_INFO_STREAM(rclcpp::get_logger("CurtMiniHardwareInterface"), "Send right side velocity:\t" << diff_speed_right);
 
   motor_driver::motorCommand command_left = {0.0, diff_speed_left, k_stiffness_,
                                              k_damping_, 0.0};
   motor_driver::motorCommand command_right = {0.0, diff_speed_right,
                                               k_stiffness_, k_damping_, 0.0};
-  command_map_ = {
-      {motor_ids_[wheel_joints_["front_left_motor"]], command_left},
-      {motor_ids_[wheel_joints_["front_right_motor"]], command_right},
-      {motor_ids_[wheel_joints_["back_left_motor"]], command_left},
-      {motor_ids_[wheel_joints_["back_right_motor"]], command_right}};
+
+  command_map_ = {{motor_ids_[0], command_left}};
+  // command_map_ = {
+  //     {motor_ids_[wheel_joints_["front_left_motor"]], command_left},
+  //     {motor_ids_[wheel_joints_["front_right_motor"]], command_right},
+  //     {motor_ids_[wheel_joints_["back_left_motor"]], command_left},
+  //     {motor_ids_[wheel_joints_["back_right_motor"]], command_right}};
   auto motor_state = motor_controller_->sendRadCommand(command_map_);
 }
 
@@ -209,14 +229,16 @@ void CurtMiniHardwareInterface::updateJointsFromHardware() {
   auto motor_state = motor_controller_->sendRadCommand(command_map_);
   for (auto i = 0u; i < info_.joints.size(); ++i) {
     hw_states_position_[i] = motor_state[i].position;
-    if (i % 2 == 0)
-    {hw_states_velocity_[i] = motor_state[i].velocity;}
-    else // correct velocities for left side
-    {hw_states_velocity_[i] = -1 * motor_state[i].velocity;}
+    if (i % 2 == 0) {
+      hw_states_velocity_[i] = motor_state[i].velocity;
+    } else // correct velocities for left side
+    {
+      hw_states_velocity_[i] = -1 * motor_state[i].velocity;
+    }
   }
-  RCLCPP_INFO_STREAM(rclcpp::get_logger("CurtMiniHardwareInterface"),
-              "Read left side velocity:\t" << hw_states_velocity_[wheel_joints_["front_left_motor"]] << "\n" <<
-              "Read right side velocity:\t" << hw_states_velocity_[wheel_joints_["front_right_motor"]]);
+  
+  RCLCPP_INFO_STREAM(rclcpp::get_logger("CurtMiniHardwareInterface"), "Read left side velocity:\t" << hw_states_velocity_[wheel_joints_["front_left_motor"]]);
+  RCLCPP_INFO_STREAM(rclcpp::get_logger("CurtMiniHardwareInterface"), "Read right side velocity:\t" << hw_states_velocity_[wheel_joints_["front_right_motor"]]);
 }
 
 } // namespace ipa_ros2_control

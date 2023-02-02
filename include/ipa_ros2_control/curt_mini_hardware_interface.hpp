@@ -61,9 +61,14 @@ private:
   void writeCommandsToHardware();
   void updateJointsFromHardware();
   // {front_left, front_right, back_left, back_right}
-  std::vector<int> motor_ids_ = { 0x01, 0x02, 0x03, 0x04 };
-  const char* can_comm_ = "can0";
-  motor_driver::MotorDriver* motor_controller_;
+  std::map<int, motor_driver::MotorType> motor_ids_types_ = {
+      {0x01, motor_driver::MotorType::AK80_9_V2},
+      {0x02, motor_driver::MotorType::AK80_9_V1p1},
+      {0x03, motor_driver::MotorType::AK80_9_V1p1},
+      {0x04, motor_driver::MotorType::AK80_9_V1p1}};
+  std::vector<int> motor_ids_;
+  const char *can_comm_ = "can0";
+  motor_driver::MotorDriver *motor_controller_;
 
   // Store the command for the robot
   std::vector<double> hw_commands_;
@@ -79,7 +84,6 @@ private:
 
   // map of joint names and there index
   std::map<std::string, uint8_t> wheel_joints_;
-  
 };
 
 } // namespace ipa_ros2_control

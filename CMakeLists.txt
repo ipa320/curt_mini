@@ -32,6 +32,7 @@ add_library(
   src/mcDSAE25.cpp
   src/ethercat_wrapper.cpp
   src/mvp_hardware_interface.cpp
+  src/curt_mini_hardware_interface.cpp
 )
 
 target_include_directories(
