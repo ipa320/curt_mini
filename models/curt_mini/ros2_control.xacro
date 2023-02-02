@@ -4,9 +4,9 @@
   <!-- ROS2 Control setup -->
   <ros2_control name="HardwareControl" type="system">
     <hardware>
-      <xacro:if value="$(arg use_sim_time)">
+      <!-- <xacro:if value="$(arg use_sim_time)">
         <plugin>gazebo_ros2_control/GazeboSystem</plugin>
-      </xacro:if>
+      </xacro:if> -->
       <xacro:unless value="$(arg use_sim_time)">
         <plugin>ipa_ros2_control/CurtMiniHardwareInterface</plugin>
       </xacro:unless>

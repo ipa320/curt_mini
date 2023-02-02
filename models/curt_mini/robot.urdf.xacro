@@ -3,7 +3,7 @@
 
   <!-- path to package -->
   <xacro:arg name="path" default="$(find curt_mini)" />
-  <xacro:arg name="use_sim_time" default="True" />
+  <xacro:arg name="use_sim_time" default="False" />
   <xacro:arg name="gazebo_controllers" default="$(arg path)/config/ros2_control_simulation.yaml" />
 
   <!-- Import ros2_control -->
