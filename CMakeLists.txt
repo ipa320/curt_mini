@@ -16,7 +16,6 @@ find_package(hardware_interface REQUIRED)
 find_package(pluginlib REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rclcpp_lifecycle REQUIRED)
-find_package(soem_ros2 REQUIRED)
 find_package(tl_expected REQUIRED)
 
 unset( CATKIN_INSTALL_INTO_PREFIX_ROOT )
@@ -29,9 +28,6 @@ find_library(mini_cheetah_motor_driver REQUIRED)
 add_library(
   ${PROJECT_NAME}
   SHARED
-  src/mcDSAE25.cpp
-  src/ethercat_wrapper.cpp
-  src/mvp_hardware_interface.cpp
   src/curt_mini_hardware_interface.cpp
 )
 
@@ -51,7 +47,6 @@ ament_target_dependencies(
   pluginlib
   rclcpp
   rclcpp_lifecycle
-  soem_ros2
   tl_expected
 )
 
@@ -61,7 +56,6 @@ ament_target_dependencies(
 
 # prevent pluginlib from using boost
 #target_compile_definitions(${PROJECT_NAME} PUBLIC "PLUGINLIB__DISABLE_BOOST_FUNCTIONS")
-pluginlib_export_plugin_description_file(hardware_interface mvp_driver.xml)
 
 pluginlib_export_plugin_description_file(hardware_interface curt_mini_driver.xml)
 
@@ -123,7 +117,6 @@ ament_export_targets(
 #   pluginlib
 #   rclcpp
 #   rclcpp_lifecycle
-#   soem_ros2
 #   tl_expected
 # )
 ament_package()

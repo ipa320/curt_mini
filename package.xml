@@ -15,7 +15,6 @@
   <depend>pluginlib</depend>
   <depend>rclcpp</depend>
   <depend>rclcpp_lifecycle</depend>
-  <depend>soem_ros2</depend>
   <depend>tl_expected</depend>
   <depend>ros2_control</depend>
   <depend>ros2_controllers</depend>
