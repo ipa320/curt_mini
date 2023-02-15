@@ -17,13 +17,13 @@
   <joint name="base_link_to_gps" type="fixed">
     <parent link="base_link" />
     <child link="gps_link" />
-    <origin xyz="0.0 0.0 0.0" />
+    <origin xyz="-0.14 0.0 0.34" />
   </joint>
   <link name="gps_link" />
 
   <!-- Velodyne -->
   <xacro:VLP-16 parent="base_link" name="velodyne" topic="/lidar_points" organize_cloud="false" hz="10" samples="440" gpu="false">
-    <origin xyz="0.25 0.0 0.2" rpy="0 ${PI / 8} 0" />
+    <origin xyz="0.175 0.0 0.31" rpy="0 ${PI / 12} 0" />
   </xacro:VLP-16>
 
 </robot>

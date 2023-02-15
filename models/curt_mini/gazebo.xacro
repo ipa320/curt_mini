@@ -4,13 +4,16 @@
   <!-- Some properties -->
   <xacro:include filename="$(find curt_mini)/models/curt_mini/properties.xacro" />
 
-  <gazebo>
+  <!-- <gazebo>
     <plugin name="gazebo_ros2_control" filename="libgazebo_ros2_control.so">
       <parameters>$(arg gazebo_controllers)</parameters>
+      <ros>
+        <remapping>odom:=/odometry/wheel</remapping>
+      </ros>
     </plugin>
-  </gazebo>
+  </gazebo> -->
 
-  <!-- <gazebo>
+  <gazebo>
     <plugin name="joint_states" filename="libgazebo_ros_joint_state_publisher.so">
       <joint_name>front_left_motor</joint_name>
       <joint_name>front_right_motor</joint_name>
@@ -25,7 +28,7 @@
       <ros>
 
         <remapping>cmd_vel:=/diff_drive_controller/cmd_vel_unstamped</remapping>
-        <remapping>odom:=wheel_odom</remapping>
+        <remapping>odom:=/odometry/wheel</remapping>
       </ros>
 
       <num_wheel_pairs>2</num_wheel_pairs>
@@ -45,14 +48,14 @@
       <update_rate>500</update_rate>
 
       <publish_odom>true</publish_odom>
-      <publish_odom_tf>true</publish_odom_tf>
+      <publish_odom_tf>false</publish_odom_tf>
       <publish_wheel_tf>true</publish_wheel_tf>
 
       <odometry_frame>odom</odometry_frame>
       <robot_base_frame>base_link</robot_base_frame>
 
     </plugin>
-  </gazebo> -->
+  </gazebo>
 
   <gazebo reference="base_link">
     <material>Gazebo/Grey</material>
@@ -128,7 +131,7 @@
       <plugin name="bytes_imu" filename="libgazebo_ros_imu_sensor.so">
         <ros>
           <namespace>imu</namespace>
-          <remapping>~/out:=data</remapping>
+          <remapping>~/out:=data_raw</remapping>
         </ros>
         <initial_orientation_as_reference>false</initial_orientation_as_reference>
       </plugin>
@@ -143,7 +146,7 @@
       <plugin name="gps_controller" filename="libgazebo_ros_gps_sensor.so">
         <ros>
           <!-- <namespace>/br</namespace> -->
-          <remapping>gps_controller/out:=gps</remapping>
+          <remapping>gps_controller/out:=gps/fix</remapping>
         </ros>
         <frame_name>gps_link</frame_name>
       </plugin>
