@@ -7,6 +7,7 @@ def generate_launch_description():
         executable="spawner.py",
         arguments=["diff_drive_controller"],
         output="screen",
+        remappings=[('odom', 'odometry/wheel')]
     )
 
     joint_state_broadcaster_spawner = Node(
@@ -14,6 +15,7 @@ def generate_launch_description():
         executable="spawner.py",
         arguments=["joint_state_broadcaster"],
         output="screen",
+        remappings=[('odom', 'odometry/wheel')]
     )
 
     return LaunchDescription([
