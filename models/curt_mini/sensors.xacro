@@ -5,6 +5,9 @@
   <!-- Package to load velodyne sensor -->
   <xacro:include filename="$(find velodyne_description)/urdf/VLP-16.urdf.xacro" />
 
+  <!-- Some properties -->
+  <xacro:include filename="$(find curt_mini)/models/curt_mini/properties.xacro" />
+
   <!-- IMU -->
   <joint name="base_link_to_imu" type="fixed">
     <parent link="base_link" />
