@@ -5,6 +5,9 @@
   <!-- Package to load velodyne sensor -->
   <xacro:include filename="$(find velodyne_description)/urdf/VLP-16.urdf.xacro" />
 
+  <!-- Some properties -->
+  <xacro:include filename="$(find curt_mini)/models/curt_mini/properties.xacro" />
+
   <!-- IMU -->
   <joint name="base_link_to_imu" type="fixed">
     <parent link="base_link" />
@@ -20,6 +23,22 @@
     <origin xyz="-0.14 0.0 0.34" />
   </joint>
   <link name="gps_link" />
+
+  <!-- Camera -->
+  <joint name="base_link_to_camera" type="fixed">
+    <parent link="base_link" />
+    <child link="camera_link" />
+    <origin xyz="0.0 0.0 0.7" rpy="${-PI / 2 - PI / 6} 0.0 ${-PI / 2}" />
+  </joint>
+  <link name="camera_link" >
+    <visual>
+      <origin rpy="0.0 0.0 0.0" xyz="0 0 0" />
+      <geometry>
+          <box size="0.10 0.05 0.05" />
+      </geometry>
+      <material name="grey" />
+  </visual>
+  </link>
 
   <!-- Velodyne -->
   <xacro:VLP-16 parent="base_link" name="velodyne" topic="/lidar_points" organize_cloud="false" hz="10" samples="440" gpu="false">
