@@ -78,7 +78,7 @@ hardware_interface::return_type CurtMiniHardwareInterface::configure(
     status_ = hardware_interface::status::CONFIGURED;
     // return hardware_interface::return_type::OK;
   }
-  //motor_ids_types_ = {{0x04, motor_driver::MotorType::AK80_9_V1p1}};
+  //motor_ids_types_ = {{0x01, motor_driver::MotorType::AK80_9_V2}};
   motor_ids_types_ = {{0x01, motor_driver::MotorType::AK80_9_V2}, {0x02, motor_driver::MotorType::AK80_9_V1p1}, {0x03, motor_driver::MotorType::AK80_9_V1p1}, {0x04, motor_driver::MotorType::AK80_9_V1p1}};
   can_comm_ = "can0";
   for (const auto &motor_id_type : motor_ids_types_) 
@@ -159,11 +159,11 @@ hardware_interface::return_type CurtMiniHardwareInterface::start() {
 
   // init command map
   motor_driver::motorCommand no_command = {0.0, 0.0, k_stiffness_, k_damping_, 0.0};
-  command_map_ = {{motor_ids_[0], no_command}};
-  // command_map_ = {{motor_ids_[0], no_command},
-  //                 {motor_ids_[1], no_command},
-  //                 {motor_ids_[2], no_command},
-  //                 {motor_ids_[3], no_command}};
+  //command_map_ = {{motor_ids_[0], no_command}};
+   command_map_ = {{motor_ids_[0], no_command},
+                   {motor_ids_[1], no_command},
+                   {motor_ids_[2], no_command},
+                   {motor_ids_[3], no_command}};
 
   status_ = hardware_interface::status::STARTED;
 
@@ -215,7 +215,7 @@ void CurtMiniHardwareInterface::writeCommandsToHardware() {
                                              k_damping_, 0.0};
   motor_driver::motorCommand command_right = {0.0, diff_speed_right,
                                               k_stiffness_, k_damping_, 0.0};
-
+  //command_map_ = {{motor_ids_[0], command_left}};
   command_map_ = {{motor_ids_[0], command_left}, {motor_ids_[1], command_right}, {motor_ids_[2], command_right}, {motor_ids_[3], command_left}};
   // command_map_ = {
   //     {motor_ids_[wheel_joints_["front_left_motor"]], command_left},
