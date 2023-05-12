@@ -19,6 +19,7 @@
   <depend>ros2_control</depend>
   <depend>ros2_controllers</depend>
   <depend>controller_manager</depend>
+  <depend>candle_ros2</depend>
 
   <test_depend>ament_cmake_gtest</test_depend>
 

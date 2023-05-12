@@ -13,6 +13,7 @@
 namespace ipa_ros2_control {
 hardware_interface::return_type CurtMiniHardwareInterface::configure(
     const hardware_interface::HardwareInfo &info) {
+  nh_ = std::make_shared<rclcpp::Node>("ros2_control_plugin");
   RCLCPP_INFO(rclcpp::get_logger("CurtMiniHardwareInterface"), "Configure");
   if (configure_default(info) != hardware_interface::return_type::OK) {
     return hardware_interface::return_type::ERROR;
@@ -78,16 +79,22 @@ hardware_interface::return_type CurtMiniHardwareInterface::configure(
     status_ = hardware_interface::status::CONFIGURED;
     // return hardware_interface::return_type::OK;
   }
-  //motor_ids_types_ = {{0x01, motor_driver::MotorType::AK80_9_V2}};
-  motor_ids_types_ = {{0x01, motor_driver::MotorType::AK80_9_V2}, {0x02, motor_driver::MotorType::AK80_9_V1p1}, {0x03, motor_driver::MotorType::AK80_9_V1p1}, {0x04, motor_driver::MotorType::AK80_9_V1p1}};
-  can_comm_ = "can0";
-  for (const auto &motor_id_type : motor_ids_types_) 
-  {
-    motor_ids_.push_back(motor_id_type.first);
-  }
-  // init motor controller
-  motor_controller_ = new motor_driver::MotorDriver(
-      motor_ids_types_, can_comm_);
+  RCLCPP_INFO(rclcpp::get_logger("CurtMiniHardwareInterface"), "Init ROS services etc");
+  add_controller_service_client_ = nh_->create_client<candle_ros2::srv::AddMd80s>("/add_md80s");
+  set_mode_service_client_ = nh_->create_client<candle_ros2::srv::SetModeMd80s>("/set_mode_md80s");
+  set_zero_service_client_ = nh_->create_client<candle_ros2::srv::GenericMd80Msg>("/zero_md80s");
+  enable_motors_service_client_ = nh_->create_client<candle_ros2::srv::GenericMd80Msg>("/enable_md80s");
+  disable_motors_service_client_ = nh_->create_client<candle_ros2::srv::GenericMd80Msg>("/disable_md80s");
+
+  joint_state_sub_ = nh_->create_subscription<sensor_msgs::msg::JointState>("/md80/joint_states", 10, std::bind(&CurtMiniHardwareInterface::jointsCallback, this, std::placeholders::_1));
+  command_pub_ = nh_->create_publisher<candle_ros2::msg::MotionCommand>("/md80/motion_command", 10);
+  config_pub_ = nh_->create_publisher<candle_ros2::msg::VelocityPidCommand>("/md80/velocity_pid_command", 10);
+  
+  // Init Motor:
+  // Add Controllers
+  // Set Mode of Controllers
+  motor_ids_ = {102, 100, 103, 101};
+  RCLCPP_INFO(rclcpp::get_logger("CurtMiniHardwareInterface"), "Init finished");
 
   return hardware_interface::return_type::OK;
 }
@@ -147,23 +154,113 @@ hardware_interface::return_type CurtMiniHardwareInterface::start() {
     }
   }
 
-  // enable motors
-  RCLCPP_INFO(rclcpp::get_logger("CurtMiniHardwareInterface"),
-              "Enable motors...");
-  motor_controller_->enableMotor(motor_ids_);
+  auto zero_vel_tmp = candle_ros2::msg::MotionCommand();
+  zero_vel_tmp.drive_ids = {102, 100, 103, 101};
+  zero_vel_tmp.target_position = {0.0, 0.0, 0.0, 0.0};
+  zero_vel_tmp.target_velocity = {0.0, 0.0, 0.0, 0.0};
+  zero_vel_tmp.target_torque = {0.0, 0.0, 0.0, 0.0};
+  command_pub_->publish(zero_vel_tmp);
+
+  while(!add_controller_service_client_->wait_for_service(std::chrono::seconds(2))) {
+    if (!rclcpp::ok()) {
+      RCLCPP_ERROR(rclcpp::get_logger("rclcpp"), "Interrupted while waiting for motor controller node");
+      return hardware_interface::return_type::ERROR;
+    }
+    RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Waiting for motor controller node.");
+  }
+  auto add_request = std::make_shared<candle_ros2::srv::AddMd80s::Request>();
+  add_request->drive_ids = {102, 100, 103, 101};
+  auto add_result = add_controller_service_client_->async_send_request(add_request);
+  if (rclcpp::spin_until_future_complete(nh_, add_result) == rclcpp::FutureReturnCode::SUCCESS) {
+    for (auto i = 0; i < add_result.get()->total_number_of_drives; i++) {
+      if (!add_result.get()->drives_success[i]) {
+        RCLCPP_ERROR(rclcpp::get_logger("rclcpp"), "Could not add Motor! Exiting.");
+        return hardware_interface::return_type::ERROR;
+      }
+    }
+  }
+  else {
+    RCLCPP_ERROR(rclcpp::get_logger("rclcpp"), "Add Motors service failed.");
+    return hardware_interface::return_type::ERROR;
+  }
+
+  
+ // Set Mode: ros2 service call /candle_ros2_node/set_mode_md80s candle_ros2/srv/SetModeMd80s "{drive_ids: [100, 101, 102, 103], mode:["VELOCITY", "VELOCITY", "VELOCITY", "VELOCITY"]}"
+  
+  auto set_mode_request = std::make_shared<candle_ros2::srv::SetModeMd80s::Request>();
+  set_mode_request->drive_ids = {102, 100, 103, 101};
+  set_mode_request->mode = {"VELOCITY_PID", "VELOCITY_PID", "VELOCITY_PID", "VELOCITY_PID"};
+  auto mode_result = set_mode_service_client_->async_send_request(set_mode_request);
+  if (rclcpp::spin_until_future_complete(nh_, mode_result) == rclcpp::FutureReturnCode::SUCCESS) {
+    for (auto i = 0; i < add_result.get()->total_number_of_drives; i++) {
+      if (!mode_result.get()->drives_success[i]) {
+        RCLCPP_ERROR(rclcpp::get_logger("rclcpp"), "Could not configure Motor! Exiting.");
+        return hardware_interface::return_type::ERROR;
+      }
+    }
+  }
+  else {
+    RCLCPP_ERROR(rclcpp::get_logger("rclcpp"), "Configure Motors service failed.");
+    return hardware_interface::return_type::ERROR;
+  }
+  
 
   // set zero position
-  RCLCPP_INFO(rclcpp::get_logger("CurtMiniHardwareInterface"),
-              "Set zero position...");
-  motor_controller_->setZeroPosition(motor_ids_);
+  // set zero service call
+  auto zero_request = std::make_shared<candle_ros2::srv::GenericMd80Msg::Request>();
+  zero_request->drive_ids = {102, 100, 103, 101};
+  auto zero_result = enable_motors_service_client_->async_send_request(zero_request);
+  if (rclcpp::spin_until_future_complete(nh_, zero_result) == rclcpp::FutureReturnCode::SUCCESS) {
+    for (auto i = 0; i < add_result.get()->total_number_of_drives; i++) {
+      if (!zero_result.get()->drives_success[i]) {
+        RCLCPP_ERROR(rclcpp::get_logger("rclcpp"), "Could not set Motor to Zero! Exiting.");
+        return hardware_interface::return_type::ERROR;
+      }
+    }
+  }
+  else {
+    RCLCPP_ERROR(rclcpp::get_logger("rclcpp"), "Set Zero service failed.");
+    return hardware_interface::return_type::ERROR;
+  }
 
-  // init command map
-  motor_driver::motorCommand no_command = {0.0, 0.0, k_stiffness_, k_damping_, 0.0};
-  //command_map_ = {{motor_ids_[0], no_command}};
-   command_map_ = {{motor_ids_[0], no_command},
-                   {motor_ids_[1], no_command},
-                   {motor_ids_[2], no_command},
-                   {motor_ids_[3], no_command}};
+  // enable motors
+  // enable service call
+  auto enable_request = std::make_shared<candle_ros2::srv::GenericMd80Msg::Request>();
+  enable_request->drive_ids = {102, 100, 103, 101};
+  auto enable_result = enable_motors_service_client_->async_send_request(enable_request);
+  if (rclcpp::spin_until_future_complete(nh_, enable_result) == rclcpp::FutureReturnCode::SUCCESS) {
+    for (auto i = 0; i < add_result.get()->total_number_of_drives; i++) {
+      if (!enable_result.get()->drives_success[i]) {
+        RCLCPP_ERROR(rclcpp::get_logger("rclcpp"), "Could not enable Motors! Exiting.");
+        return hardware_interface::return_type::ERROR;
+      }
+    }
+  }
+  else {
+    RCLCPP_ERROR(rclcpp::get_logger("rclcpp"), "Enable service failed.");
+    return hardware_interface::return_type::ERROR;
+  }
+
+
+  // set pid and config values
+  auto pid_config = candle_ros2::msg::Pid();
+  pid_config.kp = 4.0;
+  pid_config.ki = 0.5;
+  pid_config.kd = 0.0;
+  pid_config.i_windup = 6.0;
+  pid_config.max_output = 18.0;
+  auto pid_msg = candle_ros2::msg::VelocityPidCommand();
+  pid_msg.drive_ids = {102, 100, 103, 101};
+  pid_msg.velocity_pid = {pid_config, pid_config, pid_config, pid_config};
+  config_pub_->publish(pid_msg);
+
+  // publish zero once
+  auto zero_vel = candle_ros2::msg::MotionCommand();
+  zero_vel.drive_ids = {102, 100, 103, 101};
+  zero_vel.target_position = {0.0, 0.0, 0.0, 0.0};
+  zero_vel.target_velocity = {0.0, 0.0, 0.0, 0.0};
+  zero_vel.target_torque = {0.0, 0.0, 0.0, 0.0};
+  command_pub_->publish(zero_vel);
 
   status_ = hardware_interface::status::STARTED;
 
@@ -175,9 +272,30 @@ hardware_interface::return_type CurtMiniHardwareInterface::start() {
 
 hardware_interface::return_type CurtMiniHardwareInterface::stop() {
   // disable motors
-  RCLCPP_INFO(rclcpp::get_logger("CurtMiniHardwareInterface"),
-              "Disable motors...");
-  motor_controller_->disableMotor(motor_ids_);
+  // publish zero once before
+  auto zero_vel = candle_ros2::msg::MotionCommand();
+  zero_vel.drive_ids = {102, 100, 103, 101};
+  zero_vel.target_position = {0.0, 0.0, 0.0, 0.0};
+  zero_vel.target_velocity = {0.0, 0.0, 0.0, 0.0};
+  zero_vel.target_torque = {0.0, 0.0, 0.0, 0.0};
+  command_pub_->publish(zero_vel);
+
+  // disable service call
+  auto disable_request = std::make_shared<candle_ros2::srv::GenericMd80Msg::Request>();
+  disable_request->drive_ids = {102, 100, 103, 101};
+  auto disable_result = disable_motors_service_client_->async_send_request(disable_request);
+  if (rclcpp::spin_until_future_complete(nh_, disable_result) == rclcpp::FutureReturnCode::SUCCESS) {
+    for (auto i = 0; i < disable_result.get()->drives_success.size(); i++) {
+      if (!disable_result.get()->drives_success[i]) {
+        RCLCPP_ERROR(rclcpp::get_logger("rclcpp"), "Could not disable Motors! Exiting.");
+        return hardware_interface::return_type::ERROR;
+      }
+    }
+  }
+  else {
+    RCLCPP_ERROR(rclcpp::get_logger("rclcpp"), "Disable service failed.");
+    return hardware_interface::return_type::ERROR;
+  }
 
   status_ = hardware_interface::status::STOPPED;
   RCLCPP_INFO(rclcpp::get_logger("CurtMiniHardwareInterface"),
@@ -199,11 +317,6 @@ void CurtMiniHardwareInterface::writeCommandsToHardware() {
   // only front wheel commands are used
   // left side has to be multiplied with -1 due to the orientation of the motors
 
-  // motor_driver::motorCommand commandStruct1 = {0, 3.0, 0, 1, 0};
-  // std::map<int, motor_driver::motorCommand> commandMap = {{motor_ids_[0],
-  // commandStruct1}}; auto commandState =
-  // motor_controller_->sendRadCommand(commandMap);
-
   float diff_speed_left =
       -1 * hw_commands_[wheel_joints_["front_left_motor"]];
   float diff_speed_right =
@@ -211,29 +324,29 @@ void CurtMiniHardwareInterface::writeCommandsToHardware() {
   RCLCPP_INFO_STREAM(rclcpp::get_logger("CurtMiniHardwareInterface"), "Send left side velocity:\t" << diff_speed_left);
   RCLCPP_INFO_STREAM(rclcpp::get_logger("CurtMiniHardwareInterface"), "Send right side velocity:\t" << diff_speed_right);
 
-  motor_driver::motorCommand command_left = {0.0, diff_speed_left, k_stiffness_,
-                                             k_damping_, 0.0};
-  motor_driver::motorCommand command_right = {0.0, diff_speed_right,
-                                              k_stiffness_, k_damping_, 0.0};
-  //command_map_ = {{motor_ids_[0], command_left}};
-  command_map_ = {{motor_ids_[0], command_left}, {motor_ids_[1], command_right}, {motor_ids_[2], command_right}, {motor_ids_[3], command_left}};
-  // command_map_ = {
-  //     {motor_ids_[wheel_joints_["front_left_motor"]], command_left},
-  //     {motor_ids_[wheel_joints_["front_right_motor"]], command_right},
-  //     {motor_ids_[wheel_joints_["back_left_motor"]], command_left},
-  //     {motor_ids_[wheel_joints_["back_right_motor"]], command_right}};
-  auto motor_state = motor_controller_->sendRadCommand(command_map_);
+
+  // publish topic with values
+  auto command_vel = candle_ros2::msg::MotionCommand();
+  command_vel.drive_ids = {102, 100, 103, 101};
+  command_vel.target_position = {0.0, 0.0, 0.0, 0.0};
+  command_vel.target_velocity = {diff_speed_left, diff_speed_right, diff_speed_left, diff_speed_right};
+  command_vel.target_torque = {0.0, 0.0, 0.0, 0.0};
+  command_pub_->publish(command_vel);
+}
+
+void CurtMiniHardwareInterface::jointsCallback(const std::shared_ptr<sensor_msgs::msg::JointState> msg) {
+  motor_joint_state_ = *msg;
 }
 
 void CurtMiniHardwareInterface::updateJointsFromHardware() {
-  auto motor_state = motor_controller_->sendRadCommand(command_map_);
+  
   for (auto i = 0u; i < info_.joints.size(); ++i) {
-    hw_states_position_[i] = motor_state[i].position;
+    hw_states_position_[i] = motor_joint_state_.position[i];
     if (i % 2 == 0) {
-      hw_states_velocity_[i] = motor_state[i].velocity;
+      hw_states_velocity_[i] = motor_joint_state_.velocity[i];
     } else // correct velocities for left side
     {
-      hw_states_velocity_[i] = -1 * motor_state[i].velocity;
+      hw_states_velocity_[i] = -1 * motor_joint_state_.velocity[i];
     }
   }
   

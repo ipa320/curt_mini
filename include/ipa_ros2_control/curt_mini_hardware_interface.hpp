@@ -30,10 +30,19 @@
 #include "rclcpp/macros.hpp"
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp/time.hpp"
+#include <sensor_msgs/msg/joint_state.hpp>
 #include "rclcpp_lifecycle/node_interfaces/lifecycle_node_interface.hpp"
 #include "rclcpp_lifecycle/state.hpp"
 
-#include "mini_cheetah_motor_driver/MotorDriver.hpp"
+#include "candle_ros2/msg/impedance_command.hpp"
+#include "candle_ros2/msg/motion_command.hpp"
+#include "candle_ros2/msg/position_pid_command.hpp"
+#include "candle_ros2/msg/velocity_pid_command.hpp"
+#include "candle_ros2/srv/add_md80s.hpp"
+#include "candle_ros2/srv/generic_md80_msg.hpp"
+#include "candle_ros2/srv/set_limits_md80.hpp"
+#include "candle_ros2/srv/set_mode_md80s.hpp"
+
 
 namespace ipa_ros2_control {
 class CurtMiniHardwareInterface : public hardware_interface::BaseInterface<
@@ -48,6 +57,8 @@ public:
   std::vector<hardware_interface::CommandInterface>
   export_command_interfaces() override;
 
+  void jointsCallback(const std::shared_ptr<sensor_msgs::msg::JointState> msg);
+
   hardware_interface::return_type start() override;
 
   hardware_interface::return_type stop() override;
@@ -57,30 +68,31 @@ public:
   hardware_interface::return_type write() override;
 
 private:
+  rclcpp::Node::SharedPtr nh_;
   // inspired by Jackal github
   void writeCommandsToHardware();
   void updateJointsFromHardware();
   // {front_left, front_right, back_left, back_right}
-  std::map<int, motor_driver::MotorType> motor_ids_types_ = {
-      {0x01, motor_driver::MotorType::AK80_9_V2},
-      {0x02, motor_driver::MotorType::AK80_9_V1p1},
-      {0x03, motor_driver::MotorType::AK80_9_V1p1},
-      {0x04, motor_driver::MotorType::AK80_9_V1p1}};
-  std::vector<int> motor_ids_;
-  const char *can_comm_ = "can0";
-  motor_driver::MotorDriver *motor_controller_;
+  std::array<int, 4> motor_ids_;
 
   // Store the command for the robot
   std::vector<double> hw_commands_;
   std::vector<double> hw_states_position_, hw_states_velocity_;
+  sensor_msgs::msg::JointState motor_joint_state_;
+  // ROS services
+  rclcpp::Client<candle_ros2::srv::AddMd80s>::SharedPtr add_controller_service_client_;
+  rclcpp::Client<candle_ros2::srv::SetModeMd80s>::SharedPtr set_mode_service_client_;
+  rclcpp::Client<candle_ros2::srv::GenericMd80Msg>::SharedPtr set_zero_service_client_;
+  rclcpp::Client<candle_ros2::srv::GenericMd80Msg>::SharedPtr enable_motors_service_client_;
+  rclcpp::Client<candle_ros2::srv::GenericMd80Msg>::SharedPtr disable_motors_service_client_;
 
-  // map for motors
-  std::map<int, motor_driver::motorCommand> command_map_;
+  // ROS publishers
+  rclcpp::Publisher<candle_ros2::msg::MotionCommand>::SharedPtr command_pub_;
+  rclcpp::Publisher<candle_ros2::msg::VelocityPidCommand>::SharedPtr config_pub_;
+  
+  // ROS subscribers
+  rclcpp::Subscription<sensor_msgs::msg::JointState>::SharedPtr joint_state_sub_;
   // controller params
-  float k_stiffness_ = 0.0;
-  float k_damping_ = 1.0;
-  // needed?
-  float gear_ratio_ = 9.0;
 
   // map of joint names and there index
   std::map<std::string, uint8_t> wheel_joints_;

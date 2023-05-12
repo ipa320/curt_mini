@@ -17,6 +17,8 @@ find_package(pluginlib REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rclcpp_lifecycle REQUIRED)
 find_package(tl_expected REQUIRED)
+find_package(candle_ros2 REQUIRED)
+find_package(sensor_msgs REQUIRED)
 
 unset( CATKIN_INSTALL_INTO_PREFIX_ROOT )
 
@@ -48,6 +50,8 @@ ament_target_dependencies(
   rclcpp
   rclcpp_lifecycle
   tl_expected
+  candle_ros2
+  sensor_msgs
 )
 
 # Causes the visibility macros to use dllexport rather than dllimport,
