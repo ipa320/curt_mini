@@ -72,8 +72,6 @@ private:
   // inspired by Jackal github
   void writeCommandsToHardware();
   void updateJointsFromHardware();
-  // {front_left, front_right, back_left, back_right}
-  std::array<int, 4> motor_ids_;
 
   // Store the command for the robot
   std::vector<double> hw_commands_;

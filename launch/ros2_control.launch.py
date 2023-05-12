@@ -22,7 +22,7 @@ def launch_ros2_control(context, *args, **kwargs):
     urdf_path = os.path.join(robot_dir, 'models', robot.perform(context), 'robot.urdf.xacro')
 
     robot_description = Command(['xacro ', urdf_path, ' gear_ratio:=', gear_ratio, ' interface:=', interface])
-
+    
     controller_manager_node = Node(
         package='controller_manager',
         executable='ros2_control_node',
@@ -36,7 +36,16 @@ def launch_ros2_control(context, *args, **kwargs):
         },
     )
 
-    return [controller_manager_node]
+    md80_manager_node = Node(
+        package='candle_ros2',
+        executable='candle_ros2_node',
+        output={
+            "stdout": "screen",
+            "stderr": "screen",
+        },
+    )
+    return [controller_manager_node,
+            md80_manager_node]
 
 def generate_launch_description():
 
