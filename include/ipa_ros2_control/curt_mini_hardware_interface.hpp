@@ -43,19 +43,16 @@
 #include "candle_ros2/srv/set_limits_md80.hpp"
 #include "candle_ros2/srv/set_mode_md80s.hpp"
 
-
-namespace ipa_ros2_control {
-class CurtMiniHardwareInterface : public hardware_interface::BaseInterface<
-                                      hardware_interface::SystemInterface> {
+namespace ipa_ros2_control
+{
+class CurtMiniHardwareInterface : public hardware_interface::BaseInterface<hardware_interface::SystemInterface>
+{
 public:
-  hardware_interface::return_type
-  configure(const hardware_interface::HardwareInfo &info) override;
+  hardware_interface::return_type configure(const hardware_interface::HardwareInfo& info) override;
 
-  std::vector<hardware_interface::StateInterface>
-  export_state_interfaces() override;
+  std::vector<hardware_interface::StateInterface> export_state_interfaces() override;
 
-  std::vector<hardware_interface::CommandInterface>
-  export_command_interfaces() override;
+  std::vector<hardware_interface::CommandInterface> export_command_interfaces() override;
 
   void jointsCallback(const std::shared_ptr<sensor_msgs::msg::JointState> msg);
 
@@ -87,7 +84,7 @@ private:
   // ROS publishers
   rclcpp::Publisher<candle_ros2::msg::MotionCommand>::SharedPtr command_pub_;
   rclcpp::Publisher<candle_ros2::msg::VelocityPidCommand>::SharedPtr config_pub_;
-  
+
   // ROS subscribers
   rclcpp::Subscription<sensor_msgs::msg::JointState>::SharedPtr joint_state_sub_;
   // controller params
@@ -96,6 +93,6 @@ private:
   std::map<std::string, uint8_t> wheel_joints_;
 };
 
-} // namespace ipa_ros2_control
+}  // namespace ipa_ros2_control
 
-#endif // CURT_MINI_SYSTEM_HPP
+#endif  // CURT_MINI_SYSTEM_HPP
