@@ -139,6 +139,29 @@ std::vector<hardware_interface::CommandInterface> CurtMiniHardwareInterface::exp
   return command_interfaces;
 }
 
+
+// bool CurtMiniHardwareInterface::sendGenericRequest(rclcpp::Client<candle_ros2::srv::GenericMd80Msg>::SharedPtr& client)
+// {
+//   auto request = std::make_shared<candle_ros2::srv::GenericMd80Msg::Request>();
+//   request->drive_ids = { 102, 100, 103, 101 };
+//   auto result = client->async_send_request(request);
+//   if (rclcpp::spin_until_future_complete(nh_, result) == rclcpp::FutureReturnCode::SUCCESS)
+//   {
+//     if(!std::all_of(result.get()->drives_success.begin(), result.get()->drives_success.end(), [](bool b){return b;}))
+//     {
+//       RCLCPP_ERROR_STREAM(nh_->get_logger(), "Service " << client->get_service_name() << " was not successfull for all motors! Exiting");
+//       return false;
+//     }
+//   }
+//   else
+//   {
+//     RCLCPP_ERROR_STREAM(nh_->get_logger(), "Calling " << client->get_service_name() << " failed! Exiting");
+//     return false;
+//   }
+//   return true;
+// }
+
+
 hardware_interface::return_type CurtMiniHardwareInterface::start()
 {
   RCLCPP_INFO(rclcpp::get_logger("CurtMiniHardwareInterface"), "Starting ...please wait...");
@@ -159,93 +182,34 @@ hardware_interface::return_type CurtMiniHardwareInterface::start()
   {
     if (!rclcpp::ok())
     {
-      RCLCPP_ERROR(rclcpp::get_logger("rclcpp"), "Interrupted while waiting for motor controller node");
+      RCLCPP_ERROR(nh_->get_logger(), "Interrupted while waiting for motor controller node");
       return hardware_interface::return_type::ERROR;
     }
-    RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Waiting for motor controller node.");
+    RCLCPP_INFO(nh_->get_logger(), "Waiting for motor controller node.");
   }
   // add controllers via service
-  auto add_request = std::make_shared<candle_ros2::srv::AddMd80s::Request>();
-  add_request->drive_ids = { 102, 100, 103, 101 };
-  auto add_result = add_controller_service_client_->async_send_request(add_request);
-  if (rclcpp::spin_until_future_complete(nh_, add_result) == rclcpp::FutureReturnCode::SUCCESS)
+  if(!sendCandleRequest<candle_ros2::srv::AddMd80s>(add_controller_service_client_))
   {
-    for (auto i = 0; i < add_result.get()->total_number_of_drives; i++)
-    {
-      if (!add_result.get()->drives_success[i])
-      {
-        RCLCPP_ERROR(rclcpp::get_logger("rclcpp"), "Could not add Motor! Exiting.");
-        return hardware_interface::return_type::ERROR;
-      }
-    }
-  }
-  else
-  {
-    RCLCPP_ERROR(rclcpp::get_logger("rclcpp"), "Add Motors service failed.");
     return hardware_interface::return_type::ERROR;
   }
 
   // Set Mode via service call
   auto set_mode_request = std::make_shared<candle_ros2::srv::SetModeMd80s::Request>();
-  set_mode_request->drive_ids = { 102, 100, 103, 101 };
   set_mode_request->mode = { "VELOCITY_PID", "VELOCITY_PID", "VELOCITY_PID", "VELOCITY_PID" };
-  auto mode_result = set_mode_service_client_->async_send_request(set_mode_request);
-  if (rclcpp::spin_until_future_complete(nh_, mode_result) == rclcpp::FutureReturnCode::SUCCESS)
+  if(!sendCandleRequest<candle_ros2::srv::SetModeMd80s>(set_mode_service_client_, set_mode_request))
   {
-    for (auto i = 0; i < add_result.get()->total_number_of_drives; i++)
-    {
-      if (!mode_result.get()->drives_success[i])
-      {
-        RCLCPP_ERROR(rclcpp::get_logger("rclcpp"), "Could not configure Motor! Exiting.");
-        return hardware_interface::return_type::ERROR;
-      }
-    }
-  }
-  else
-  {
-    RCLCPP_ERROR(rclcpp::get_logger("rclcpp"), "Configure Motors service failed.");
     return hardware_interface::return_type::ERROR;
   }
 
   // set zero position via service call
-  auto zero_request = std::make_shared<candle_ros2::srv::GenericMd80Msg::Request>();
-  zero_request->drive_ids = { 102, 100, 103, 101 };
-  auto zero_result = set_zero_service_client_->async_send_request(zero_request);
-  if (rclcpp::spin_until_future_complete(nh_, zero_result) == rclcpp::FutureReturnCode::SUCCESS)
+  if(!sendCandleRequest<candle_ros2::srv::GenericMd80Msg>(set_zero_service_client_))
   {
-    for (auto i = 0; i < add_result.get()->total_number_of_drives; i++)
-    {
-      if (!zero_result.get()->drives_success[i])
-      {
-        RCLCPP_ERROR(rclcpp::get_logger("rclcpp"), "Could not set Motor to Zero! Exiting.");
-        return hardware_interface::return_type::ERROR;
-      }
-    }
-  }
-  else
-  {
-    RCLCPP_ERROR(rclcpp::get_logger("rclcpp"), "Set Zero service failed.");
     return hardware_interface::return_type::ERROR;
   }
 
   // enable motors via service call
-  auto enable_request = std::make_shared<candle_ros2::srv::GenericMd80Msg::Request>();
-  enable_request->drive_ids = { 102, 100, 103, 101 };
-  auto enable_result = enable_motors_service_client_->async_send_request(enable_request);
-  if (rclcpp::spin_until_future_complete(nh_, enable_result) == rclcpp::FutureReturnCode::SUCCESS)
+  if(!sendCandleRequest<candle_ros2::srv::GenericMd80Msg>(enable_motors_service_client_))
   {
-    for (auto i = 0; i < add_result.get()->total_number_of_drives; i++)
-    {
-      if (!enable_result.get()->drives_success[i])
-      {
-        RCLCPP_ERROR(rclcpp::get_logger("rclcpp"), "Could not enable Motors! Exiting.");
-        return hardware_interface::return_type::ERROR;
-      }
-    }
-  }
-  else
-  {
-    RCLCPP_ERROR(rclcpp::get_logger("rclcpp"), "Enable service failed.");
     return hardware_interface::return_type::ERROR;
   }
 
@@ -288,23 +252,8 @@ hardware_interface::return_type CurtMiniHardwareInterface::stop()
   command_pub_->publish(zero_vel);
 
   // disable service call
-  auto disable_request = std::make_shared<candle_ros2::srv::GenericMd80Msg::Request>();
-  disable_request->drive_ids = { 102, 100, 103, 101 };
-  auto disable_result = disable_motors_service_client_->async_send_request(disable_request);
-  if (rclcpp::spin_until_future_complete(nh_, disable_result) == rclcpp::FutureReturnCode::SUCCESS)
+  if(!sendCandleRequest<candle_ros2::srv::GenericMd80Msg>(disable_motors_service_client_))
   {
-    for (auto i = 0; i < disable_result.get()->drives_success.size(); i++)
-    {
-      if (!disable_result.get()->drives_success[i])
-      {
-        RCLCPP_ERROR(rclcpp::get_logger("rclcpp"), "Could not disable Motors! Exiting.");
-        return hardware_interface::return_type::ERROR;
-      }
-    }
-  }
-  else
-  {
-    RCLCPP_ERROR(rclcpp::get_logger("rclcpp"), "Disable service failed.");
     return hardware_interface::return_type::ERROR;
   }
 

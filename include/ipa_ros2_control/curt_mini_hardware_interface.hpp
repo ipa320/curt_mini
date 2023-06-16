@@ -69,6 +69,28 @@ private:
   // inspired by Jackal github
   void writeCommandsToHardware();
   void updateJointsFromHardware();
+  // bool sendGenericRequest(rclcpp::Client<candle_ros2::srv::GenericMd80Msg>::SharedPtr& client);
+
+  template<typename candle_srv_type>
+  bool sendCandleRequest(typename rclcpp::Client<candle_srv_type>::SharedPtr client, typename candle_srv_type::Request::SharedPtr request = std::make_shared<typename candle_srv_type::Request>())
+  {
+  request->drive_ids = { 102, 100, 103, 101 };
+  auto result = client->async_send_request(request);
+  if (rclcpp::spin_until_future_complete(nh_, result) == rclcpp::FutureReturnCode::SUCCESS)
+  {
+    if(!std::all_of(result.get()->drives_success.begin(), result.get()->drives_success.end(), [](bool b){return b;}))
+    {
+      RCLCPP_ERROR_STREAM(nh_->get_logger(), "Service " << client->get_service_name() << " was not successfull for all motors! Exiting");
+      return false;
+    }
+  }
+  else
+  {
+    RCLCPP_ERROR_STREAM(nh_->get_logger(), "Calling " << client->get_service_name() << " failed! Exiting");
+    return false;
+  }
+  return true;
+  }
 
   // Store the command for the robot
   std::vector<double> hw_commands_;
