@@ -92,8 +92,8 @@ hardware_interface::return_type CurtMiniHardwareInterface::configure(const hardw
   motor_joint_state_.effort = { 0.0, 0.0, 0.0, 0.0 };
 
   // pid params
-  pid_config_.kp = 4.0;
-  pid_config_.ki = 0.5;
+  pid_config_.kp = 8.0;
+  pid_config_.ki = 1.0;
   pid_config_.kd = 0.0;
   pid_config_.i_windup = 6.0;
   pid_config_.max_output = 18.0;
