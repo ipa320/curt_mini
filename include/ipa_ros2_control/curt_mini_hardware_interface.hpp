@@ -69,27 +69,51 @@ private:
   // inspired by Jackal github
   void writeCommandsToHardware();
   void updateJointsFromHardware();
+  void publishPIDParams(const candle_ros2::msg::Pid& pid_config);
   // bool sendGenericRequest(rclcpp::Client<candle_ros2::srv::GenericMd80Msg>::SharedPtr& client);
 
-  template<typename candle_srv_type>
-  bool sendCandleRequest(typename rclcpp::Client<candle_srv_type>::SharedPtr client, typename candle_srv_type::Request::SharedPtr request = std::make_shared<typename candle_srv_type::Request>())
+  /**
+   *
+   * Wrapper function for templated node's declare_parameter() which checks if
+   * parameter is already declared.
+   * (Copied from ControllerInterface base class)
+   */
+  template <typename ParameterT>
+  auto auto_declare(const std::string& name, const ParameterT& default_value)
   {
-  request->drive_ids = { 102, 100, 103, 101 };
-  auto result = client->async_send_request(request);
-  if (rclcpp::spin_until_future_complete(nh_, result) == rclcpp::FutureReturnCode::SUCCESS)
-  {
-    if(!std::all_of(result.get()->drives_success.begin(), result.get()->drives_success.end(), [](bool b){return b;}))
+    if (!nh_->has_parameter(name))
     {
-      RCLCPP_ERROR_STREAM(nh_->get_logger(), "Service " << client->get_service_name() << " was not successfull for all motors! Exiting");
-      return false;
+      return nh_->declare_parameter<ParameterT>(name, default_value);
+    }
+    else
+    {
+      return nh_->get_parameter(name).get_value<ParameterT>();
     }
   }
-  else
+
+  template <typename candle_srv_type>
+  bool sendCandleRequest(
+      typename rclcpp::Client<candle_srv_type>::SharedPtr client,
+      typename candle_srv_type::Request::SharedPtr request = std::make_shared<typename candle_srv_type::Request>())
   {
-    RCLCPP_ERROR_STREAM(nh_->get_logger(), "Calling " << client->get_service_name() << " failed! Exiting");
-    return false;
-  }
-  return true;
+    request->drive_ids = { 102, 100, 103, 101 };
+    auto result = client->async_send_request(request);
+    if (rclcpp::spin_until_future_complete(nh_, result) == rclcpp::FutureReturnCode::SUCCESS)
+    {
+      if (!std::all_of(result.get()->drives_success.begin(), result.get()->drives_success.end(),
+                       [](bool b) { return b; }))
+      {
+        RCLCPP_ERROR_STREAM(nh_->get_logger(),
+                            "Service " << client->get_service_name() << " was not successfull for all motors! Exiting");
+        return false;
+      }
+    }
+    else
+    {
+      RCLCPP_ERROR_STREAM(nh_->get_logger(), "Calling " << client->get_service_name() << " failed! Exiting");
+      return false;
+    }
+    return true;
   }
 
   // Store the command for the robot
@@ -110,6 +134,13 @@ private:
   // ROS subscribers
   rclcpp::Subscription<sensor_msgs::msg::JointState>::SharedPtr joint_state_sub_;
   // controller params
+  rclcpp::node_interfaces::OnSetParametersCallbackHandle::SharedPtr param_callback_handle_;
+  candle_ros2::msg::Pid pid_config_;
+  double standstill_thresh_{ 0.01 };
+  bool motors_paused_{ false };
+
+  void pauseMotors();
+  void resumeMotors();
 
   // map of joint names and there index
   std::map<std::string, uint8_t> wheel_joints_;
