@@ -202,7 +202,7 @@ hardware_interface::return_type CurtMiniHardwareInterface::configure(const hardw
 void CurtMiniHardwareInterface::publishPIDParams(const candle_ros2::msg::Pid& pid_config)
 {
   auto pid_msg = candle_ros2::msg::VelocityPidCommand();
-  pid_msg.drive_ids = { 102, 100, 103, 101 };
+  pid_msg.drive_ids = { 101, 100, 103, 102 };
   pid_msg.velocity_pid = { pid_config, pid_config, pid_config, pid_config };
   config_pub_->publish(pid_msg);
 }
@@ -318,7 +318,7 @@ hardware_interface::return_type CurtMiniHardwareInterface::start()
 
   // publish zero velocity once
   auto zero_vel = candle_ros2::msg::MotionCommand();
-  zero_vel.drive_ids = { 102, 100, 103, 101 };
+  zero_vel.drive_ids = { 101, 100, 103, 102 };
   zero_vel.target_position = { 0.0, 0.0, 0.0, 0.0 };
   zero_vel.target_velocity = { 0.0, 0.0, 0.0, 0.0 };
   zero_vel.target_torque = { 0.0, 0.0, 0.0, 0.0 };
@@ -336,7 +336,7 @@ hardware_interface::return_type CurtMiniHardwareInterface::stop()
   // disable motors
   // publish zero once before
   auto zero_vel = candle_ros2::msg::MotionCommand();
-  zero_vel.drive_ids = { 102, 100, 103, 101 };
+  zero_vel.drive_ids = { 101, 100, 103, 102 };
   zero_vel.target_position = { 0.0, 0.0, 0.0, 0.0 };
   zero_vel.target_velocity = { 0.0, 0.0, 0.0, 0.0 };
   zero_vel.target_torque = { 0.0, 0.0, 0.0, 0.0 };
@@ -368,7 +368,7 @@ hardware_interface::return_type CurtMiniHardwareInterface::write()
 void CurtMiniHardwareInterface::writeCommandsToHardware()
 {
   auto command_vel = candle_ros2::msg::MotionCommand();
-  command_vel.drive_ids = { 102, 100, 103, 101 };
+  command_vel.drive_ids = { 101, 100, 103, 102 };
   command_vel.target_position = { 0.0, 0.0, 0.0, 0.0 };
 
   command_vel.target_torque = { 0.0, 0.0, 0.0, 0.0 };
