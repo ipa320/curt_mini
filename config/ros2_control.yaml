@@ -73,3 +73,8 @@ skid_steer_controller:
     control_loop_odometry_topic: "/odometry/imu_incremental"
     filter_odometry: true
     cut_off_frequency: 0.5
+    linear_vel_pid.p: 0.0
+    linear_vel_pid.i: 3.0
+    linear_vel_pid.d: 0.0
+    linear_vel_pid.i_clamp: 1.5
+    linear_vel_pid.antiwindup: true
