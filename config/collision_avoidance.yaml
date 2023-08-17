@@ -1,6 +1,6 @@
 pointcloud_collision_avoidance:
   ros__parameters:
-    active: true
+    active: false
     min_height_obstacle: 0.13
     max_height_obstacle: 0.9
     base_frame: base_link

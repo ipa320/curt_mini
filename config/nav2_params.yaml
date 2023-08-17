@@ -102,9 +102,9 @@ local_costmap:
       global_frame: map
       robot_base_frame: base_link
       use_sim_time: False
-      rolling_window: true
-      width: 20
-      height: 20
+      rolling_window: false
+      width: 120
+      height: 120
       resolution: 0.05
       trinary_costmap: false
       footprint: "[ [0.45, 0.3], [0.45, -0.3], [-0.45, -0.3], [-0.45, 0.3] ]"
@@ -112,14 +112,14 @@ local_costmap:
       unknown_cost_value: 42
       static_layer:
         plugin: "nav2_costmap_2d::StaticLayer"
-        map_subscribe_transient_local: False
+        map_subscribe_transient_local: True
         subscribe_to_updates: True
         map_topic: "/traversability_map"
         transform_tolerance: 0.3
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"
         enabled: true
-        inflation_radius: 0.9
+        inflation_radius: 0.5
         cost_scaling_factor: 1.0
         inflate_unknown: false
         inflate_around_unknown: true
@@ -139,10 +139,10 @@ global_costmap:
       global_frame: map
       robot_base_frame: base_link
       use_sim_time: False
-      width: 20
-      height: 20
+      width: 120
+      height: 120
       footprint: "[ [0.45, 0.3], [0.45, -0.3], [-0.45, -0.3], [-0.45, 0.3] ]"
-      resolution: 0.1
+      resolution: 0.05
       trinary_costmap: false
       track_unknown_space: true
       plugins: ["traversability_layer", "inflation_layer"]
@@ -156,7 +156,7 @@ global_costmap:
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"
         enabled: true
-        inflation_radius: 0.9
+        inflation_radius: 0.5
         cost_scaling_factor: 1.0
         inflate_unknown: false
         inflate_around_unknown: true
@@ -188,11 +188,16 @@ planner_server:
     expected_planner_frequency: 2.0
     use_sim_time: False
     planner_plugins: ["GridBased"]
-    GridBased:
-      plugin: "jackal_demo_planner/JackalDemoPlanner"
+    # GridBased:
+    #   plugin: "jackal_demo_planner/JackalDemoPlanner"
     #  tolerance: 0.5
     #  use_astar: false
     #  allow_unknown: true
+    GridBased:
+      plugin: 'nav2_navfn_costmap_planner/NavfnCostmapPlanner'
+      use_astar: True
+      allow_unknown: True
+      tolerance: 1.0
     # GridBased:
     #   plugin: "smac_planner/SmacPlanner"
     #   tolerance: 0.5                      # tolerance for planning if unable to reach exact pose, in meters, for 2D node
@@ -207,7 +212,7 @@ planner_server:
     #   angle_quantization_bins: 64         # For Hybrid nodes: Number of angle bins for search, must be 1 for 2D node (no angle search)
     #   analytic_expansion_ratio: 3.5       # For Hybrid/Lattice nodes: The ratio to attempt analytic expansions during search for final approach.
     #   analytic_expansion_max_length: 3.0    # For Hybrid/Lattice nodes: The maximum length of the analytic expansion to be considered valid to prevent unsafe shortcutting (in meters). This should be scaled with minimum turning radius and be no less than 4-5x the minimum radius
-    #   minimum_turning_radius: 0.40        # For Hybrid/Lattice nodes: minimum turning radius in m of path / vehicle
+    #   minimum_turning_radius: 0.10        # For Hybrid/Lattice nodes: minimum turning radius in m of path / vehicle
     #   reverse_penalty: 2.1                # For Reeds-Shepp model: penalty to apply if motion is reversing, must be => 1
     #   change_penalty: 0.0                 # For Hybrid nodes: penalty to apply if motion is changing directions, must be >= 0
     #   non_straight_penalty: 1.20          # For Hybrid nodes: penalty to apply if motion is non-straight, must be => 1
