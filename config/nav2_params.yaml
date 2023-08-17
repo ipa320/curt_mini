@@ -146,12 +146,12 @@ global_costmap:
       trinary_costmap: false
       track_unknown_space: true
       plugins: ["traversability_layer", "inflation_layer"]
-      unknown_cost_value: 42
+      unknown_cost_value: 0
       traversability_layer:
         plugin: "nav2_costmap_2d::StaticLayer"
         map_subscribe_transient_local: True
         subscribe_to_updates: True
-        map_topic: "/traversability_map"
+        map_topic: "/map_static_global"
         transform_tolerance: 0.3
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"
