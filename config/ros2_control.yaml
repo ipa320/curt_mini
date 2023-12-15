@@ -64,17 +64,18 @@ skid_steer_controller:
     angular.z.max_acceleration: 15.0
 
     angular_vel_pid.p: 0.0
-    angular_vel_pid.i: 5.0
+    angular_vel_pid.i: 1.0
     angular_vel_pid.d: 0.0
-    angular_vel_pid.i_clamp_max: 2.0
-    angular_vel_pid.i_clamp_min: -2.0
+    angular_vel_pid.i_clamp_max: 0.7
+    angular_vel_pid.i_clamp_min: -0.7
     angular_vel_pid.antiwindup: true
     angular_vel_pid.max_time_diff: 1.0
-    control_loop_odometry_topic: "/odometry/imu_incremental"
+    control_loop_odometry_topic: "/odometry/local"
     filter_odometry: true
     cut_off_frequency: 0.5
     linear_vel_pid.p: 0.0
-    linear_vel_pid.i: 3.0
+    linear_vel_pid.i: 0.5
     linear_vel_pid.d: 0.0
-    linear_vel_pid.i_clamp: 1.5
+    linear_vel_pid.i_clamp_max: 0.5
+    linear_vel_pid.i_clamp_min: -0.5
     linear_vel_pid.antiwindup: true

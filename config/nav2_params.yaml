@@ -102,13 +102,14 @@ local_costmap:
       global_frame: map
       robot_base_frame: base_link
       use_sim_time: False
-      rolling_window: false
-      width: 120
-      height: 120
+      rolling_window: true
+      width: 20
+      height: 20
       resolution: 0.05
       trinary_costmap: false
       footprint: "[ [0.45, 0.3], [0.45, -0.3], [-0.45, -0.3], [-0.45, 0.3] ]"
-      plugins: ["static_layer", "inflation_layer"]
+      # plugins: ["static_layer", "inflation_layer"]
+      plugins: ["static_layer"]
       unknown_cost_value: 42
       static_layer:
         plugin: "nav2_costmap_2d::StaticLayer"
@@ -116,13 +117,13 @@ local_costmap:
         subscribe_to_updates: True
         map_topic: "/traversability_map"
         transform_tolerance: 0.3
-      inflation_layer:
-        plugin: "nav2_costmap_2d::InflationLayer"
-        enabled: true
-        inflation_radius: 0.5
-        cost_scaling_factor: 1.0
-        inflate_unknown: false
-        inflate_around_unknown: true
+      # inflation_layer:
+      #   plugin: "nav2_costmap_2d::InflationLayer"
+      #   enabled: true
+      #   inflation_radius: 0.5
+      #   cost_scaling_factor: 1.0
+      #   inflate_unknown: false
+      #   inflate_around_unknown: true
       always_send_full_costmap: True
   local_costmap_client:
     ros__parameters:
@@ -139,6 +140,7 @@ global_costmap:
       global_frame: map
       robot_base_frame: base_link
       use_sim_time: False
+      rolling_window: true
       width: 120
       height: 120
       footprint: "[ [0.45, 0.3], [0.45, -0.3], [-0.45, -0.3], [-0.45, 0.3] ]"
@@ -151,7 +153,7 @@ global_costmap:
         plugin: "nav2_costmap_2d::StaticLayer"
         map_subscribe_transient_local: True
         subscribe_to_updates: True
-        map_topic: "/map_static_global"
+        map_topic: "/traversability_map"
         transform_tolerance: 0.3
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"
@@ -185,19 +187,52 @@ map_saver:
 
 planner_server:
   ros__parameters:
+
     expected_planner_frequency: 2.0
-    use_sim_time: False
+    use_sim_time: true
     planner_plugins: ["GridBased"]
-    # GridBased:
-    #   plugin: "jackal_demo_planner/JackalDemoPlanner"
-    #  tolerance: 0.5
-    #  use_astar: false
-    #  allow_unknown: true
     GridBased:
-      plugin: 'nav2_navfn_costmap_planner/NavfnCostmapPlanner'
-      use_astar: True
-      allow_unknown: True
-      tolerance: 1.0
+      plugin: "ipa_hybrid_astar_global/HybridAstarGlobal"
+      min_turning_radius: 0.3
+      dubins_shot_distance: 1.0
+      angle_num_bins: 72
+      greedyness: 1.0
+      goal_distance_partly_occupied_solution: 1.0
+      primitives:
+        sampling_time: 1.0
+        lin_vel: 0.3
+        num_extra_primitives_fw: 1
+        reverse_driving: false
+        num_extra_primitives_bw: 1
+      penalties:
+        weight_turn: 0.0
+        weight_costmap: 0.0
+        weight_reverse: 0.0
+        weight_motion_change: 0.0
+      goal_tolerances:
+        goal_dist_thresh: 0.3
+        goal_ang_thresh: 0.4
+      no_replanning: true
+      goal_approach:
+        stop_replanning_near_goal: true
+        path_to_goal_distance: 1.0
+      foxy_costmap_check: true
+
+
+    # expected_planner_frequency: 2.0
+    # use_sim_time: False
+    # planner_plugins: ["GridBased"]
+    # # GridBased:
+    # #   plugin: "jackal_demo_planner/JackalDemoPlanner"
+    # #  tolerance: 0.5
+    # #  use_astar: false
+    # #  allow_unknown: true
+    # GridBased:
+    #   plugin: 'nav2_navfn_costmap_planner/NavfnCostmapPlanner'
+    #   use_astar: True
+    #   allow_unknown: True
+    #   tolerance: 1.0
+
     # GridBased:
     #   plugin: "smac_planner/SmacPlanner"
     #   tolerance: 0.5                      # tolerance for planning if unable to reach exact pose, in meters, for 2D node
