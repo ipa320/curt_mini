@@ -7,18 +7,26 @@ local_costmap:
       robot_base_frame: base_link
       use_sim_time: True
       rolling_window: true
-      width: 9
-      height: 9
+      width: 20
+      height: 20
       resolution: 0.05
       trinary_costmap: false
       footprint: "[ [0.45, 0.3], [0.45, -0.3], [-0.45, -0.3], [-0.45, 0.3] ]"
-      plugins: ["static_layer"]
+      plugins: ["static_layer", "inflation_layer"]
+      unknown_cost_value: 42
       static_layer:
-        map_subscribe_transient_local: False
         plugin: "nav2_costmap_2d::StaticLayer"
-        subscribe_to_updates: false
-        map_topic: "/map_static"
+        map_subscribe_transient_local: False
+        subscribe_to_updates: True
+        map_topic: "/traversability_map"
         transform_tolerance: 0.3
+      inflation_layer:
+        plugin: "nav2_costmap_2d::InflationLayer"
+        enabled: true
+        inflation_radius: 0.9
+        cost_scaling_factor: 1.0
+        inflate_unknown: false
+        inflate_around_unknown: true
       always_send_full_costmap: True
   local_costmap_client:
     ros__parameters:
