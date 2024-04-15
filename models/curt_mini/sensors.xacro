@@ -43,8 +43,8 @@
   <!-- <xacro:macro name="VLP-16" params="*origin parent:=base_link name:=velodyne tf_prefix:='' topic:=/velodyne_points organize_cloud:=false hz:=10 lasers:=16 samples:=1875 collision_range:=0.3 min_range:=0.9 max_range:=130.0 noise:=0.008 min_angle:=-${M_PI} max_angle:=${M_PI} gpu:=false"> -->
 
   <!-- Velodyne -->
-  <xacro:VLP-16 parent="base_link" name="velodyne" min_range="0.1" topic="/lidar_points" organize_cloud="false" hz="10" samples="440" gpu="false">
-    <origin xyz="0.175 0.0 0.31" rpy="0 ${PI / 12} 0" />
+  <xacro:VLP-16 parent="base_link" name="velodyne" topic="/lidar_points" organize_cloud="false" hz="10" samples="440" gpu="false">
+    <origin xyz="0.175 0.0 0.31" rpy="0 0 ${PI}" />
   </xacro:VLP-16>
 
 </robot>

@@ -5,7 +5,7 @@ def generate_launch_description():
     robot_controller_spawner = Node(
         package="controller_manager",
         executable="spawner.py",
-        arguments=["diff_drive_controller"],
+        arguments=["skid_steer_controller"],
         output="screen",
         remappings=[('odom', 'odometry/wheel')]
     )

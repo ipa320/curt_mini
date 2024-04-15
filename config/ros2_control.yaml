@@ -3,8 +3,8 @@ controller_manager:
     update_rate: 100
     use_sim_time: false
 
-    diff_drive_controller:
-      type: diff_drive_controller/DiffDriveController
+    skid_steer_controller:
+      type: skid_steer_controller/SkidSteerController
 
     joint_state_broadcaster:
       type: joint_state_broadcaster/JointStateBroadcaster
@@ -13,7 +13,7 @@ joint_state_broadcaster:
   ros__parameters:
     use_sim_time: false
 
-diff_drive_controller:
+skid_steer_controller:
   ros__parameters:
     use_sim_time: false
 
@@ -33,7 +33,7 @@ diff_drive_controller:
     base_frame_id: base_link
 
     open_loop: false
-    enable_odom_tf: true
+    enable_odom_tf: false
 
     cmd_vel_timeout: 0.25
     #publish_limited_velocity: true
@@ -62,3 +62,20 @@ diff_drive_controller:
     angular.z.has_acceleration_limits: true
     angular.z.min_acceleration: -15.0
     angular.z.max_acceleration: 15.0
+
+    angular_vel_pid.p: 0.0
+    angular_vel_pid.i: 1.0
+    angular_vel_pid.d: 0.0
+    angular_vel_pid.i_clamp_max: 0.7
+    angular_vel_pid.i_clamp_min: -0.7
+    angular_vel_pid.antiwindup: true
+    angular_vel_pid.max_time_diff: 1.0
+    control_loop_odometry_topic: "/odometry/local"
+    filter_odometry: true
+    cut_off_frequency: 0.5
+    linear_vel_pid.p: 0.0
+    linear_vel_pid.i: 0.5
+    linear_vel_pid.d: 0.0
+    linear_vel_pid.i_clamp_max: 0.5
+    linear_vel_pid.i_clamp_min: -0.5
+    linear_vel_pid.antiwindup: true
