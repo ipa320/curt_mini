@@ -9,7 +9,9 @@
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 
+  <depend>ipa_ros2_control</depend>
   <depend>joint_state_publisher</depend>
+  <depend>joy_linux</depend>
   <depend>robot_state_publisher</depend>
   <depend>rclcpp</depend>
   <depend>rclpy</depend>
@@ -17,7 +19,6 @@
   <depend>velodyne</depend>
   <depend>velodyne_gazebo_plugins</depend>
   <depend>xacro</depend>
-  <depend>ipa_ros2_control</depend>
 
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>
