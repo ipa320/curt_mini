@@ -21,7 +21,7 @@ find_package(rclcpp REQUIRED)
 find_package(rclpy REQUIRED)
 
 install(
-  DIRECTORY config models launch
+  DIRECTORY config models bringup
   DESTINATION share/${PROJECT_NAME}
 )
 
