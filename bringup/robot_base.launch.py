@@ -32,7 +32,7 @@ def launch_robot(context, *args, **kwargs):
 
     # start the controllers
     controller = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(os.path.join(get_package_share_directory(robot.perform(context)), 'launch', 'start_controller.launch.py')),
+        PythonLaunchDescriptionSource(os.path.join(get_package_share_directory(robot.perform(context)), 'bringup', 'start_controller.launch.py')),
     )
 
     # start joystick

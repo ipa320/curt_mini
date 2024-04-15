@@ -17,7 +17,7 @@ def launch_robot(context, *args, **kwargs):
 
     # start the base
     base = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(os.path.join(get_package_share_directory(robot.perform(context)), 'launch', 'robot_base.launch.py')),
+        PythonLaunchDescriptionSource(os.path.join(get_package_share_directory(robot.perform(context)), 'bringup', 'robot_base.launch.py')),
         launch_arguments={'robot' : robot,
                           'environment' : environment,
                           'gear_ratio' : gear_ratio,
@@ -27,7 +27,7 @@ def launch_robot(context, *args, **kwargs):
 
     # start the navigation
     nav = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(os.path.join(get_package_share_directory(robot.perform(context)), 'launch', 'navigation_only.launch.py')),
+        PythonLaunchDescriptionSource(os.path.join(get_package_share_directory(robot.perform(context)), 'bringup', 'navigation_only.launch.py')),
         launch_arguments={'robot' : robot,
                           'environment' : environment
                           }.items()
