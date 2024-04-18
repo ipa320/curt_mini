@@ -1,0 +1,21 @@
+repositories:
+    ipa_outdoor_navigation:
+        type: git
+        url: git@gitlab.cc-asp.fraunhofer.de:ipa323/ipa_outdoor_navigation.git
+        version: foxy-devel
+    ipa_ros2_control:
+        type: git
+        url: git@gitlab.cc-asp.fraunhofer.de:ipa323/hardware/ipa_ros2_control.git
+        version: feature/curt_mini_candle_fixes
+    ipa_ros2_controllers:
+        type: git
+        url: git@gitlab.cc-asp.fraunhofer.de:ipa323/hardware/ipa_ros2_controllers.git
+        version: master
+    candle_ros2:
+        type: git
+        url: https://github.com/mabrobotics/candle_ros2
+        version: main
+    ipa_twist_mux:
+        type: git
+        url: git@gitlab.cc-asp.fraunhofer.de:ipa323/ipa_twist_mux.git
+        version: ros2
