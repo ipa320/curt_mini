@@ -2,7 +2,7 @@ repositories:
     ipa_outdoor_navigation:
         type: git
         url: git@gitlab.cc-asp.fraunhofer.de:ipa323/ipa_outdoor_navigation.git
-        version: feature/update_nav_bringup_r2
+        version: foxy-devel
     ipa_ros2_control:
         type: git
         url: git@gitlab.cc-asp.fraunhofer.de:ipa323/hardware/ipa_ros2_control.git

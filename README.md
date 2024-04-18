@@ -19,7 +19,7 @@ Currently outdoor navigation is running packages in ros1 and ros2 simultaneously
 ```
 mkdir -p <colcon_ws>/src
 cd <colcon_ws>/src 
-git clone -b foxy-devel-new git@gitlab.cc-asp.fraunhofer.de:ipa323/robots/curt_mini
+git clone -b foxy-devel git@gitlab.cc-asp.fraunhofer.de:ipa323/robots/curt_mini
 chmod +x curt_mini/clone_repos.sh
 ./curt_mini/clone_repos.sh
 cd ..
