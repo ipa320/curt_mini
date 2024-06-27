@@ -1,3 +1,5 @@
+# This is the iron-devel branch, but only some dependencies in ipa_outdoor_robot_bringup.repos have been updated. This is not ported to iron!
+
 # Curt Mini
 
 Select a branch and the ROS version for your robot. You may need a ROS1 and a ROS2 workspace.
