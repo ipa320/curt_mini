@@ -12,13 +12,12 @@
 
 namespace ipa_ros2_control
 {
-hardware_interface::return_type CurtMiniHardwareInterface::configure(const hardware_interface::HardwareInfo& info)
+CallbackReturn CurtMiniHardwareInterface::on_init(const hardware_interface::HardwareInfo& info)
 {
   nh_ = std::make_shared<rclcpp::Node>("CurtMiniHardwareInterface");
   RCLCPP_INFO(nh_->get_logger(), "Configure");
-  if (configure_default(info) != hardware_interface::return_type::OK)
-  {
-    return hardware_interface::return_type::ERROR;
+  if (SystemInterface::on_init(info) != CallbackReturn::SUCCESS) {
+    return CallbackReturn::ERROR;
   }
 
   RCLCPP_INFO(nh_->get_logger(), "Name: %s", info_.name.c_str());
@@ -37,38 +36,37 @@ hardware_interface::return_type CurtMiniHardwareInterface::configure(const hardw
     {
       RCLCPP_FATAL(nh_->get_logger(), "Joint '%s' has %zu command interfaces found. 1 expected.", joint.name.c_str(),
                    joint.command_interfaces.size());
-      return hardware_interface::return_type::ERROR;
+      return CallbackReturn::ERROR;
     }
 
     if (joint.command_interfaces[0].name != hardware_interface::HW_IF_VELOCITY)
     {
       RCLCPP_FATAL(nh_->get_logger(), "Joint '%s' have %s command interfaces found. '%s' expected.", joint.name.c_str(),
                    joint.command_interfaces[0].name.c_str(), hardware_interface::HW_IF_VELOCITY);
-      return hardware_interface::return_type::ERROR;
+      return CallbackReturn::ERROR;
     }
 
     if (joint.state_interfaces.size() != 2)
     {
       RCLCPP_FATAL(nh_->get_logger(), "Joint '%s' has %zu state interface. 2 expected.", joint.name.c_str(),
                    joint.state_interfaces.size());
-      return hardware_interface::return_type::ERROR;
+      return CallbackReturn::ERROR;
     }
 
     if (joint.state_interfaces[0].name != hardware_interface::HW_IF_POSITION)
     {
       RCLCPP_FATAL(nh_->get_logger(), "Joint '%s' have '%s' as first state interface. '%s' expected.",
                    joint.name.c_str(), joint.state_interfaces[0].name.c_str(), hardware_interface::HW_IF_POSITION);
-      return hardware_interface::return_type::ERROR;
+      return CallbackReturn::ERROR;
     }
 
     if (joint.state_interfaces[1].name != hardware_interface::HW_IF_VELOCITY)
     {
       RCLCPP_FATAL(nh_->get_logger(), "Joint '%s' have '%s' as second state interface. '%s' expected.",
                    joint.name.c_str(), joint.state_interfaces[1].name.c_str(), hardware_interface::HW_IF_VELOCITY);
-      return hardware_interface::return_type::ERROR;
+      return CallbackReturn::ERROR;
     }
-    status_ = hardware_interface::status::CONFIGURED;
-    // return hardware_interface::return_type::OK;
+    // return CallbackReturn::SUCCESS;
   }
   RCLCPP_INFO(nh_->get_logger(), "Init ROS services etc");
   add_controller_service_client_ = nh_->create_client<candle_ros2::srv::AddMd80s>("candle_ros2_node/add_md80s");
@@ -196,7 +194,7 @@ hardware_interface::return_type CurtMiniHardwareInterface::configure(const hardw
       });
   RCLCPP_INFO(nh_->get_logger(), "Init finished");
 
-  return hardware_interface::return_type::OK;
+  return CallbackReturn::SUCCESS;
 }
 
 void CurtMiniHardwareInterface::publishPIDParams(const candle_ros2::msg::Pid& pid_config)
@@ -268,7 +266,7 @@ std::vector<hardware_interface::CommandInterface> CurtMiniHardwareInterface::exp
 //   return true;
 // }
 
-hardware_interface::return_type CurtMiniHardwareInterface::start()
+CallbackReturn CurtMiniHardwareInterface::on_activate(const rclcpp_lifecycle::State & /* previous_state */)
 {
   RCLCPP_INFO(nh_->get_logger(), "Starting ...please wait...");
 
@@ -283,14 +281,14 @@ hardware_interface::return_type CurtMiniHardwareInterface::start()
     if (!rclcpp::ok())
     {
       RCLCPP_ERROR(nh_->get_logger(), "Interrupted while waiting for motor controller node");
-      return hardware_interface::return_type::ERROR;
+      return CallbackReturn::ERROR;
     }
     RCLCPP_INFO(nh_->get_logger(), "Waiting for motor controller node.");
   }
   // add controllers via service
   if (!sendCandleRequest<candle_ros2::srv::AddMd80s>(add_controller_service_client_))
   {
-    return hardware_interface::return_type::ERROR;
+    return CallbackReturn::ERROR;
   }
 
   // Set Mode via service call
@@ -298,19 +296,19 @@ hardware_interface::return_type CurtMiniHardwareInterface::start()
   set_mode_request->mode = { "VELOCITY_PID", "VELOCITY_PID", "VELOCITY_PID", "VELOCITY_PID" };
   if (!sendCandleRequest<candle_ros2::srv::SetModeMd80s>(set_mode_service_client_, set_mode_request))
   {
-    return hardware_interface::return_type::ERROR;
+    return CallbackReturn::ERROR;
   }
 
   // set zero position via service call
   if (!sendCandleRequest<candle_ros2::srv::GenericMd80Msg>(set_zero_service_client_))
   {
-    return hardware_interface::return_type::ERROR;
+    return CallbackReturn::ERROR;
   }
 
   // enable motors via service call
   if (!sendCandleRequest<candle_ros2::srv::GenericMd80Msg>(enable_motors_service_client_))
   {
-    return hardware_interface::return_type::ERROR;
+    return CallbackReturn::ERROR;
   }
 
   // set pid and config values
@@ -324,14 +322,12 @@ hardware_interface::return_type CurtMiniHardwareInterface::start()
   zero_vel.target_torque = { 0.0, 0.0, 0.0, 0.0 };
   command_pub_->publish(zero_vel);
 
-  status_ = hardware_interface::status::STARTED;
-
   RCLCPP_INFO(nh_->get_logger(), "System Successfully started!");
 
-  return hardware_interface::return_type::OK;
+  return CallbackReturn::SUCCESS;
 }
 
-hardware_interface::return_type CurtMiniHardwareInterface::stop()
+CallbackReturn CurtMiniHardwareInterface::on_deactivate(const rclcpp_lifecycle::State & /* previous_state */)
 {
   // disable motors
   // publish zero once before
@@ -345,21 +341,20 @@ hardware_interface::return_type CurtMiniHardwareInterface::stop()
   // disable service call
   if (!sendCandleRequest<candle_ros2::srv::GenericMd80Msg>(disable_motors_service_client_))
   {
-    return hardware_interface::return_type::ERROR;
+    return CallbackReturn::ERROR;
   }
 
-  status_ = hardware_interface::status::STOPPED;
   RCLCPP_INFO(nh_->get_logger(), "System Successfully stopped!");
-  return hardware_interface::return_type::OK;
+  return CallbackReturn::SUCCESS;
 }
 
-hardware_interface::return_type CurtMiniHardwareInterface::read()
+ hardware_interface::return_type CurtMiniHardwareInterface::read(const rclcpp::Time & /* time */, const rclcpp::Duration & /* period */)
 {
   updateJointsFromHardware();
   return hardware_interface::return_type::OK;
 }
 
-hardware_interface::return_type CurtMiniHardwareInterface::write()
+ hardware_interface::return_type CurtMiniHardwareInterface::write(const rclcpp::Time & /* time */, const rclcpp::Duration & /* period */)
 {
   writeCommandsToHardware();
   return hardware_interface::return_type::OK;

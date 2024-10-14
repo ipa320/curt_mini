@@ -25,7 +25,6 @@ unset( CATKIN_INSTALL_INTO_PREFIX_ROOT )
 include_directories(include)
 
 link_directories(/usr/local/lib)
-find_library(mini_cheetah_motor_driver REQUIRED)
 
 add_library(
   ${PROJECT_NAME}
@@ -63,9 +62,6 @@ ament_target_dependencies(
 
 pluginlib_export_plugin_description_file(hardware_interface curt_mini_driver.xml)
 
-target_link_libraries(
-  ${PROJECT_NAME} mini_cheetah_motor_driver
-)
 
 install(
   TARGETS ${PROJECT_NAME}
