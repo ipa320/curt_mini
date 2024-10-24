@@ -19,3 +19,12 @@ repositories:
         type: git
         url: git@gitlab.cc-asp.fraunhofer.de:ipa323/ipa_twist_mux.git
         version: ros2
+    liorf:
+        type: git
+        url: git@gitlab.cc-asp.fraunhofer.de:ipa323/third-party/liorf.git
+        version: refactor
+    liorf_msgs:
+        type: git
+        url: git@gitlab.cc-asp.fraunhofer.de:ipa323/outdoor_nav/liorf_msgs.git
+        version: master
+    

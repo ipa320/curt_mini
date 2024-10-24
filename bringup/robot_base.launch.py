@@ -1,31 +1,42 @@
 import os
 
-from launch.actions import IncludeLaunchDescription
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch_ros.actions import Node
-from launch.substitutions import LaunchConfiguration
-from launch.actions import DeclareLaunchArgument
-from launch.actions import OpaqueFunction
+from launch.substitutions import LaunchConfiguration, Command, PathJoinSubstitution
+from launch_ros.substitutions import FindPackageShare
+from launch_ros.parameter_descriptions import ParameterValue
+from launch.actions import DeclareLaunchArgument, OpaqueFunction, IncludeLaunchDescription, GroupAction
 
 
 def launch_robot(context, *args, **kwargs):
     # initialize arguments
+    #robot = "curt_mini"
     robot = LaunchConfiguration('robot')
-    environment = LaunchConfiguration('environment')
     gear_ratio = LaunchConfiguration('gear_ratio')
     interface = LaunchConfiguration('interface')
+    robot_dir = FindPackageShare(robot)
 
     twist_pkg_name = robot.perform(context)
     twist_pkg_path = get_package_share_directory(twist_pkg_name)
     twist_mux_path = os.path.join(twist_pkg_path, 'config/twist_mux.yaml')
 
+    # start the state publisher
+    urdf_path = PathJoinSubstitution([robot_dir, "models", robot, "robot.urdf.xacro"])
+    robot_description = Command(["xacro ", urdf_path, " interface:=", interface])
+    state_publisher = Node(
+        package="robot_state_publisher",
+        executable="robot_state_publisher",
+        parameters=[
+            {"robot_description": ParameterValue(robot_description, value_type=str)}
+        ],
+    )
+
     # start the hardware interface
     hardware_interface = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(os.path.join(get_package_share_directory('ipa_ros2_control'), 'launch', 'ros2_control.launch.py')),
         launch_arguments={'robot' : robot,
-                          'environment' : environment,
                           'gear_ratio' : gear_ratio,
                           'interface' : interface}.items()
     )
@@ -92,16 +103,6 @@ def generate_launch_description():
             default_value='curt_mini',
             description="Set the robot.",
             choices=['curt_mvp', 'curt_mini'],
-        )
-    )
-
-    # environment argument
-    declared_arguments.append(
-        DeclareLaunchArgument(
-            'environment',
-            default_value='empty',
-            description='Setup the environment map that will be loaded',
-            choices=['empty', 'acker', 'plant_acker', 'uneven_terrain', 'kogrob_acker'],
         )
     )
 
