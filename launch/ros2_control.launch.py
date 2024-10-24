@@ -11,7 +11,6 @@ from launch.actions import OpaqueFunction
 def launch_ros2_control(context, *args, **kwargs):
     # initialize arguments
     robot = LaunchConfiguration('robot')
-    environment = LaunchConfiguration('environment')
     gear_ratio = LaunchConfiguration('gear_ratio')
     interface = LaunchConfiguration('interface')
 
@@ -27,7 +26,6 @@ def launch_ros2_control(context, *args, **kwargs):
         package='controller_manager',
         executable='ros2_control_node',
         parameters=[
-            {'robot_description': robot_description},
             ros2_control_yaml_path,
         ],
         output={
@@ -58,16 +56,6 @@ def generate_launch_description():
             default_value='curt_mini',
             description="Set the robot.",
             choices=['curt_mvp', 'curt_mini'],
-        )
-    )
-
-    # environment argument
-    declared_arguments.append(
-        DeclareLaunchArgument(
-            'environment',
-            default_value='empty',
-            description='Setup the environment map that will be loaded',
-            choices=['empty', 'acker', 'plant_acker', 'uneven_terrain'],
         )
     )
 
