@@ -2,15 +2,15 @@ repositories:
     ipa_outdoor_navigation:
         type: git
         url: git@gitlab.cc-asp.fraunhofer.de:ipa323/ipa_outdoor_navigation.git
-        version: iron-devel
+        version: jazzy_compatibility
     ipa_ros2_control:
         type: git
         url: git@gitlab.cc-asp.fraunhofer.de:ipa323/hardware/ipa_ros2_control.git
-        version: feature/curt_mini_candle_fixes
+        version: curt_mini_jazzy
     ipa_ros2_controllers:
         type: git
         url: git@gitlab.cc-asp.fraunhofer.de:ipa323/hardware/ipa_ros2_controllers.git
-        version: master
+        version: jazzy_pr
     candle_ros2:
         type: git
         url: https://github.com/mabrobotics/candle_ros2
