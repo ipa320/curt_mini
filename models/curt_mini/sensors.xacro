@@ -12,7 +12,7 @@
   <joint name="base_link_to_imu" type="fixed">
     <parent link="base_link" />
     <child link="imu_link" />
-    <origin xyz="0.0 0.0 0.0" />
+    <origin xyz="0.035 0.03 0.12" rpy="0.0 3.14159 0.0"/>
   </joint>
   <link name="imu_link" />
 
@@ -28,7 +28,7 @@
   <joint name="base_link_to_camera" type="fixed">
     <parent link="base_link" />
     <child link="camera_link" />
-    <origin xyz="0.0 0.0 0.7" rpy="${-PI / 2 - PI / 6} 0.0 ${-PI / 2}" />
+    <origin xyz="0.32 0.02 0.18" rpy="0.0 0.2792 0.0" /> <!-- 16° down -->
   </joint>
   <link name="camera_link" >
     <visual>
@@ -40,11 +40,23 @@
   </visual>
   </link>
 
+  <!-- lidar -->
+  <joint name="base_link_to_lidar" type="fixed">
+    <parent link="base_link" />
+    <child link="lidar_link" />
+    <origin xyz="0.2 0.0 0.4" rpy="0 0 0" />
+  </joint>
+  <link name="lidar_link" />
+
+  <xacro:VLP-16 parent="lidar_link" name="velodyne" topic="/ouster/points" organize_cloud="false" min_range="0.1" hz="10" samples="1875" gpu="true">
+    <origin xyz="0.0 0.0 0.0" rpy="0 0 0" />
+  </xacro:VLP-16>
+
   <!-- <xacro:macro name="VLP-16" params="*origin parent:=base_link name:=velodyne tf_prefix:='' topic:=/velodyne_points organize_cloud:=false hz:=10 lasers:=16 samples:=1875 collision_range:=0.3 min_range:=0.9 max_range:=130.0 noise:=0.008 min_angle:=-${M_PI} max_angle:=${M_PI} gpu:=false"> -->
 
-  <!-- Velodyne -->
+  <!-- Velodyne
   <xacro:VLP-16 parent="base_link" name="velodyne" topic="/lidar_points" organize_cloud="false" hz="10" samples="440" gpu="false">
     <origin xyz="0.175 0.0 0.31" rpy="0 0 ${PI}" />
-  </xacro:VLP-16>
+  </xacro:VLP-16> -->
 
 </robot>

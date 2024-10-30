@@ -19,6 +19,9 @@ def launch_nav(context, *args, **kwargs):
         PythonLaunchDescriptionSource(os.path.join(get_package_share_directory('ipa_outdoor_navigation_bringup'), 'bringup', 'outdoor_navigation.launch.py')),
         launch_arguments={'robot' : robot,
                           'environment' : environment,
+                          'launch_nav' : "True",
+                          'launch_lidar_loc' : "True",
+                          'pointcloud_topic' : "/ouster/points",
                           'use_sim_time' : 'False'}.items()
     )
 
@@ -46,7 +49,6 @@ def generate_launch_description():
             'environment',
             default_value='empty',
             description='Setup the environment map that will be loaded',
-            choices=['empty', 'acker', 'plant_acker', 'uneven_terrain', 'kogrob_acker'],
         )
     )
 

@@ -58,7 +58,6 @@ def generate_launch_description():
             'environment',
             default_value='empty',
             description='Setup the environment map that will be loaded',
-            choices=['empty', 'acker', 'plant_acker', 'uneven_terrain', 'kogrob_acker'],
         )
     )
 

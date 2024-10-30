@@ -100,6 +100,11 @@ def launch_robot(context, *args, **kwargs):
         parameters=[imu_xsens_path],
     )
 
+    realsense = Node(
+        package="realsense2_camera",
+        name="realsense2_camera_node",
+        executable="realsense2_camera_node",
+    )
 
     return [
         hardware_interface,
@@ -111,6 +116,7 @@ def launch_robot(context, *args, **kwargs):
         state_publisher,
         lidar,
         imu_xsens,
+        realsense,
     ]
 
 
