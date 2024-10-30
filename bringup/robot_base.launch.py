@@ -17,6 +17,9 @@ def launch_robot(context, *args, **kwargs):
     gear_ratio = LaunchConfiguration('gear_ratio')
     interface = LaunchConfiguration('interface')
     robot_dir = FindPackageShare(robot)
+    ouster_path = PathJoinSubstitution([robot_dir, "config", "ouster.yaml"])
+    imu_xsens_path = PathJoinSubstitution([robot_dir, "config", "xsens.yaml"])
+
 
     twist_pkg_name = robot.perform(context)
     twist_pkg_path = get_package_share_directory(twist_pkg_name)
@@ -68,8 +71,8 @@ def launch_robot(context, *args, **kwargs):
             output='screen',
             parameters=[twist_mux_path,
                         {'use_sim_time': False}],
-            #remappings=[('/cmd_vel_out', '/skid_steer_controller/cmd_vel_unstamped')]
-            remappings=[('/cmd_vel_out', '/cmd_vel_unsafe')]
+            remappings=[('/cmd_vel_out', '/skid_steer_controller/cmd_vel_unstamped')]
+            #remappings=[('/cmd_vel_out', '/cmd_vel_unsafe')]
             #/skid_steer_controller/cmd_vel_unstamped'
     )
     pointcloud_safety = IncludeLaunchDescription(
@@ -81,6 +84,22 @@ def launch_robot(context, *args, **kwargs):
                             'cmd_vel_out': '/skid_steer_controller/cmd_vel_unstamped'}.items()
     )
 
+    lidar = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            PathJoinSubstitution(
+                [FindPackageShare("ouster_ros"), "launch", "driver.launch.py"]
+            )
+        ),
+        launch_arguments={"viz": "False", "params_file": ouster_path}.items(),
+    )
+
+    imu_xsens = Node(
+        package="ipa_xsens_mti_driver",
+        name="xsens_mti_node",
+        executable="xsens_mti_node",
+        parameters=[imu_xsens_path],
+    )
+
 
     return [
         hardware_interface,
@@ -88,7 +107,10 @@ def launch_robot(context, *args, **kwargs):
         joystick,
         # pointcloud_safety,
         zero_twist,
-        twist_mux
+        twist_mux,
+        state_publisher,
+        lidar,
+        imu_xsens,
     ]
 
 
