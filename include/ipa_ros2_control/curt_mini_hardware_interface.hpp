@@ -15,6 +15,7 @@
 #ifndef CURT_MINI_SYSTEM_HPP_
 #define CURT_MINI_SYSTEM_HPP_
 
+#include <chrono>
 #include <limits>
 #include <memory>
 #include <string>
@@ -101,11 +102,14 @@ private:
       typename rclcpp::Client<candle_srv_type>::SharedPtr client,
       typename candle_srv_type::Request::SharedPtr request = std::make_shared<typename candle_srv_type::Request>())
   {
-    request->drive_ids = { 102, 100, 103, 101 };
+    RCLCPP_INFO_STREAM(nh_->get_logger(), "Calling " << client->get_service_name());
+    request->drive_ids = { 102, 100, 103, 101 }; // { br , fr, bl , fl}
     auto result = client->async_send_request(request);
-    if (rclcpp::spin_until_future_complete(nh_, result) == rclcpp::FutureReturnCode::SUCCESS)
+    if (rclcpp::spin_until_future_complete(nh_, result, std::chrono::seconds{5}) == rclcpp::FutureReturnCode::SUCCESS)
     {
-      if (!std::all_of(result.get()->drives_success.begin(), result.get()->drives_success.end(),
+      RCLCPP_INFO_STREAM(nh_->get_logger(), "Calling ");
+      auto res = *result.get();
+      if (!std::all_of(res.drives_success.begin(), res.drives_success.end(),
                        [](bool b) { return b; }))
       {
         RCLCPP_ERROR_STREAM(nh_->get_logger(),
