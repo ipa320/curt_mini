@@ -8,7 +8,9 @@ from launch.substitutions import LaunchConfiguration, Command, PathJoinSubstitut
 from launch_ros.substitutions import FindPackageShare
 from launch_ros.parameter_descriptions import ParameterValue
 from launch.actions import DeclareLaunchArgument, OpaqueFunction, IncludeLaunchDescription, GroupAction
+from launch.conditions import UnlessCondition
 
+sim_configuration = LaunchConfiguration("simulation")
 
 def launch_robot(context, *args, **kwargs):
     # initialize arguments
@@ -27,7 +29,10 @@ def launch_robot(context, *args, **kwargs):
 
     # start the state publisher
     urdf_path = PathJoinSubstitution([robot_dir, "models", robot, "robot.urdf.xacro"])
-    robot_description = Command(["xacro ", urdf_path, " interface:=", interface])
+    robot_description = Command(["xacro ", urdf_path, 
+                                 " interface:=", interface,
+                                 " simulation:=", sim_configuration,
+                                ])
     state_publisher = Node(
         package="robot_state_publisher",
         executable="robot_state_publisher",
@@ -107,16 +112,21 @@ def launch_robot(context, *args, **kwargs):
     )
 
     return [
-        hardware_interface,
         controller,
         joystick,
         # pointcloud_safety,
         zero_twist,
         twist_mux,
         state_publisher,
-        lidar,
-        imu_xsens,
-        realsense,
+        GroupAction(
+        [
+            hardware_interface,
+            imu_xsens,
+            lidar,
+            realsense,
+        ],
+        condition=UnlessCondition(sim_configuration),
+        ),
     ]
 
 
@@ -130,7 +140,7 @@ def generate_launch_description():
             'robot',
             default_value='curt_mini',
             description="Set the robot.",
-            choices=['curt_mvp', 'curt_mini'],
+            choices=['curt_diff', 'curt_mini'],
         )
     )
 
@@ -149,6 +159,14 @@ def generate_launch_description():
             'gear_ratio',
             default_value='1',
             description='Set the gear ratio of the motors',
+        )
+    )
+
+    declared_arguments.append(
+        DeclareLaunchArgument(
+            "simulation",
+            default_value="False",
+            choices=["True", "False"],
         )
     )
 

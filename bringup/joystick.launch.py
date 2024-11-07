@@ -47,9 +47,9 @@ def generate_launch_description():
     declared_arguments.append(
         DeclareLaunchArgument(
             'robot',
-            default_value='curt_mvp',
+            default_value='curt_diff',
             description="Set the robot.",
-            choices=['curt_mvp', 'curt_mini', 'curt_track'],
+            choices=['curt_diff', 'curt_mini', 'curt_track'],
         )
     )
 

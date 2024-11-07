@@ -2,8 +2,8 @@
 
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
 
-  <!-- Package to load velodyne sensor -->
-  <xacro:include filename="$(find velodyne_description)/urdf/VLP-16.urdf.xacro" />
+  <!-- Package to load velodyne sensor 
+  <xacro:include filename="$(find velodyne_description)/urdf/VLP-16.urdf.xacro" /-->
 
   <!-- Some properties -->
   <xacro:include filename="$(find curt_mini)/models/curt_mini/properties.xacro" />
@@ -48,10 +48,40 @@
   </joint>
   <link name="lidar_link" />
 
+  <gazebo reference="lidar_link">
+    <sensor name='gpu_lidar' type='gpu_lidar'>
+      <gz_frame_id>lidar_link</gz_frame_id>
+      <topic>lidar</topic>
+      <update_rate>20</update_rate>
+      <ray>
+        <scan>
+          <horizontal>
+            <samples>1024</samples>
+            <resolution>1</resolution>
+            <min_angle>${-pi}</min_angle>
+            <max_angle>${pi}</max_angle>
+          </horizontal>
+          <vertical>
+            <samples>32</samples>
+            <resolution>1</resolution>
+            <min_angle>${-pi/4}</min_angle>
+            <max_angle>${pi/4}</max_angle>
+          </vertical>
+        </scan>
+        <range>
+          <min>0.5</min>
+          <max>35.0</max>
+        </range>
+      </ray>
+      <always_on>1</always_on>
+      <visualize>true</visualize>
+    </sensor>
+  </gazebo>
+<!--
   <xacro:VLP-16 parent="lidar_link" name="velodyne" topic="/ouster/points" organize_cloud="false" min_range="0.1" hz="10" samples="1875" gpu="true">
     <origin xyz="0.0 0.0 0.0" rpy="0 0 0" />
   </xacro:VLP-16>
-
+-->
   <!-- <xacro:macro name="VLP-16" params="*origin parent:=base_link name:=velodyne tf_prefix:='' topic:=/velodyne_points organize_cloud:=false hz:=10 lasers:=16 samples:=1875 collision_range:=0.3 min_range:=0.9 max_range:=130.0 noise:=0.008 min_angle:=-${M_PI} max_angle:=${M_PI} gpu:=false"> -->
 
   <!-- Velodyne

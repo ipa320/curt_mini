@@ -39,7 +39,7 @@ def generate_launch_description():
             'robot',
             default_value='curt_mini',
             description="Set the robot.",
-            choices=['curt_mvp', 'curt_mini'],
+            choices=['curt_diff', 'curt_mini'],
         )
     )
 

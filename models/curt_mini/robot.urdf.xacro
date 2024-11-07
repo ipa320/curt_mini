@@ -5,7 +5,7 @@
   <xacro:arg name="path" default="$(find curt_mini)" />
   <xacro:arg name="use_sim_time" default="False" />
   <xacro:arg name="gazebo_controllers" default="$(arg path)/config/ros2_control_simulation.yaml" />
-
+  <xacro:arg name="simulation" default="False" />
   <!-- Import ros2_control -->
   <xacro:include filename="$(find curt_mini)/models/curt_mini/ros2_control.xacro" />
 
@@ -167,7 +167,7 @@
   <xacro:wheel_transmissions prefix="back_left_motor" />
 
   <!-- Import gazebo infos -->
-  <xacro:if value="$(arg use_sim_time)" >
+  <xacro:if value="$(arg simulation)" >
     <xacro:include filename="$(find curt_mini)/models/curt_mini/gazebo.xacro" />
   </xacro:if>
 
