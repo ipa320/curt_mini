@@ -1,18 +1,21 @@
 import os
 
+from launch.action import Action
 from launch.actions import IncludeLaunchDescription
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
-from launch.substitutions import LaunchConfiguration
+from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
 from launch.actions import DeclareLaunchArgument
 from launch.actions import OpaqueFunction
+from launch_ros.actions import Node
+from launch_ros.substitutions import FindPackageShare
 
 
-def launch_nav(context, *args, **kwargs):
+def launch_nav() -> list[Action]:
     # initialize arguments
-    robot = LaunchConfiguration('robot')
     environment = LaunchConfiguration('environment')
+    robot = "curt_mini"
 
     # start the Navigation
     navigation = IncludeLaunchDescription(
@@ -20,9 +23,8 @@ def launch_nav(context, *args, **kwargs):
         launch_arguments={'robot' : robot,
                           'environment' : environment,
                           'launch_nav' : "True",
-                          'launch_lidar_loc' : "True",
                           'pointcloud_topic' : "/ouster/points",
-                          'use_sim_time' : 'False'}.items()
+                          }.items()
     )
 
     return [
@@ -52,4 +54,16 @@ def generate_launch_description():
         )
     )
 
-    return LaunchDescription(declared_arguments + [OpaqueFunction(function=launch_nav)])
+    rviz_node = Node(
+        package="rviz2",
+        executable="rviz2",
+        name="rviz2",
+        arguments=[
+            "-d",
+            PathJoinSubstitution(
+                [FindPackageShare("curt_mini"), "config", "nav_setup.rviz"]
+            ),
+        ],
+    )
+
+    return LaunchDescription(declared_arguments + launch_nav() + [rviz_node])
