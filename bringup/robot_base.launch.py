@@ -18,6 +18,7 @@ from launch.actions import (
     GroupAction,
     OpaqueFunction,
     ExecuteProcess,
+    TimerAction,
 )
 from launch.conditions import UnlessCondition
 
@@ -132,22 +133,27 @@ def launch_robot(context, *args, **kwargs):
 
 
     return [
-        controller,
-        joystick,
-        # pointcloud_safety,
-        zero_twist,
-        twist_mux,
-        state_publisher,
         zenoh_bridge,
-        GroupAction(
-        [
-            hardware_interface,
-            imu_xsens,
-            lidar,
-            realsense,
-        ],
-        condition=UnlessCondition(sim_configuration),
-        ),
+        TimerAction(
+            period=5.0,
+            actions=[
+                state_publisher,
+                controller,
+                joystick,
+                twist_mux,
+                zero_twist,
+                # Skip hardware interfaces when running in simulation
+                GroupAction(
+                    [
+                        hardware_interface,
+                        imu_xsens,
+                        lidar,
+                        realsense,
+                    ],
+                    condition=UnlessCondition(sim_configuration),
+                ),
+            ]
+        )
     ]
 
 

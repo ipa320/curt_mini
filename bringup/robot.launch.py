@@ -5,8 +5,7 @@ from launch.launch_description_sources import PythonLaunchDescriptionSource
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch.substitutions import LaunchConfiguration
-from launch.actions import DeclareLaunchArgument
-from launch.actions import OpaqueFunction
+from launch.actions import DeclareLaunchArgument, TimerAction, OpaqueFunction
 
 def launch_robot(context, *args, **kwargs):
     # initialize arguments
@@ -35,7 +34,7 @@ def launch_robot(context, *args, **kwargs):
 
     return [
         base,
-        nav
+        TimerAction(period=5.0, actions=[nav]),
     ]
 
 def generate_launch_description():

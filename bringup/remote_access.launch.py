@@ -72,7 +72,7 @@ def launch_robot():
         arguments=[
             "-d",
             PathJoinSubstitution(
-                [FindPackageShare("curt_track"), "config", "nav_setup.rviz"]
+                [FindPackageShare(robot), "config", "nav_setup.rviz"]
             ),
         ],
     )

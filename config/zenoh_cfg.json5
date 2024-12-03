@@ -26,6 +26,7 @@
       //// OTT: Limit high data rate topics for low bandwidth WIFI connections. Add new high data rate topics here.
       pub_max_frequencies: ["/ouster/points=2.0", "/lidar/points.*=2.0", "/global_costmap/costmap=2.0"],
 
+      transient_local_cache_multiplier: 1000,
       ////
       //// pub_priorities: Specify a list of priorities of publications routing over zenoh for a set of Publishers.
       ////                 In case of high traffic, the publications with higher priorities will overtake
@@ -39,7 +40,7 @@
       ////                   to create a bigger batch of messages. This usually has a positive impact on latency for the topic
       ////                   but a negative impact on the general throughput, as more overhead is used for those topics.
       //// OTT: Last time i tested this, it seemed broken... But if the pub_max_frequencies is chosen correctly that doesn't matter.
-      // pub_priorities: ["/scan=1:express", "/pose=2", "/rosout=7"],
+      pub_priorities: ["/tf=1:express", "/tf_static=1:express"],
     },
   },
 
