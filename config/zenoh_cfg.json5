@@ -1,0 +1,67 @@
+// Adapted from https://github.com/eclipse-zenoh/zenoh-plugin-ros2dds/blob/main/DEFAULT_CONFIG.json5
+// Only adapted configs are kept, there are a lot more options available!
+{
+  plugins: {
+    ////
+    //// ROS2 related configuration
+    //// All settings are optional and are unset by default - uncomment the ones you want to set
+    ////
+    ros2dds: {
+
+      ////
+      //// ros_localhost_only: If set to true, the DDS discovery and traffic will occur only on the localhost interface (127.0.0.1).
+      ////                     By default set to false, unless the "ROS_LOCALHOST_ONLY=1" environment variable is defined.
+      //// Note OTT: During setup, this did not seem to work as intended. So we don't set this here, and also don't define
+      //// ROS_LOCALHOST_ONLY or ROS_AUTOMATIC_DISCOVERY_RANGE=LOCALHOST. Instead we limit cyclonedds to localhost via the
+      //// XML config file (CYCLONEDDS_URI).
+      ////
+      ros_localhost_only: false,
+
+      ////
+      //// pub_max_frequencies: Specify a list of maximum frequency of publications routing over zenoh for a set of Publishers.
+      ////                      The strings must have the format "<regex>=<float>":
+      ////                      - "regex" is a regular expression matching a Publisher interface name
+      ////                      - "float" is the maximum frequency in Hertz;
+      ////                        if publication rate is higher, downsampling will occur when routing.
+      //// OTT: Limit high data rate topics for low bandwidth WIFI connections. Add new high data rate topics here.
+      pub_max_frequencies: ["/ouster/points=2.0", "/lidar/points.*=2.0", "/global_costmap/costmap=2.0"],
+
+      ////
+      //// pub_priorities: Specify a list of priorities of publications routing over zenoh for a set of Publishers.
+      ////                 In case of high traffic, the publications with higher priorities will overtake
+      ////                 the publications with lower priorities in Zenoh publication queues.
+      ////                 The strings must have the format "<regex>=<integer>[:express]":
+      ////                 - "regex" is a regular expression matching a Publisher topic name
+      ////                 - "integer" is a priority value in the range [1-7]. Highest priority is 1, lowest is 7 and default is 5.
+      ////                   (see Zenoh Priority definition here: https://docs.rs/zenoh/latest/zenoh/publication/enum.Priority.html)
+      ////                - ":express" is an option to indicate that the Zenoh express policy must be used for those publications.
+      ////                   The express policy makes Zenoh to to send the message immediatly, not waiting for possible further messages
+      ////                   to create a bigger batch of messages. This usually has a positive impact on latency for the topic
+      ////                   but a negative impact on the general throughput, as more overhead is used for those topics.
+      //// OTT: Last time i tested this, it seemed broken... But if the pub_max_frequencies is chosen correctly that doesn't matter.
+      // pub_priorities: ["/scan=1:express", "/pose=2", "/rosout=7"],
+    },
+  },
+
+  ////
+  //// Which endpoints to connect to. E.g. tcp/localhost:7447.
+  //// By configuring the endpoints, it is possible to tell zenoh which remote router or other zenoh-bridge-ros2dds to connect to at startup.
+  ////
+  connect: {
+    endpoints: [
+      // "<proto>/<ip>:<port>"
+    ]
+  },
+
+  ////
+  //// Which endpoints to listen on.
+  //// By configuring the endpoints, it is possible to tell zenoh which are the endpoints that other routers,
+  //// peers, or client can use to establish a zenoh session.
+  //// In 'router' mode (default) the zenoh-bridge-ros2dds is listening by default on `tcp/0.0.0.0:7447` (`0.0.0.0` meaning all the available network interfaces)
+  ////
+  listen: {
+    endpoints: [
+      "tcp/0.0.0.0:7447",
+    ]
+  },
+}
