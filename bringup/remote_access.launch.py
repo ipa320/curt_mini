@@ -20,8 +20,8 @@ def host_is_up(host: str) -> bool:
 
 # Try determining the robot IP by trying to reach each candidate in order.
 def find_default_robot_ip() -> str:
-    tailscale_host = "NUC"
-    tailscale_ip = "100.127.119.15" # 14
+    tailscale_host = "nuc-curt-mini"
+    tailscale_ip = "100.64.0.10"
     nighthawk_ip = "192.168.130.46"
     hotspot_ip = "10.42.1.1"
 
