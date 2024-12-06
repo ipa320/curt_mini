@@ -24,7 +24,7 @@
       ////                      - "float" is the maximum frequency in Hertz;
       ////                        if publication rate is higher, downsampling will occur when routing.
       //// OTT: Limit high data rate topics for low bandwidth WIFI connections. Add new high data rate topics here.
-      pub_max_frequencies: ["/ouster/points=2.0", "/lidar/points.*=2.0", "/global_costmap/costmap=2.0"],
+      pub_max_frequencies: ["/ouster/points=2.0", "/lidar/points.*=2.0", "/global_costmap/costmap=2.0", "/camera/realsense2_camera_node/.*=2.0"],
 
       transient_local_cache_multiplier: 1000,
       ////
