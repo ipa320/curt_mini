@@ -4,10 +4,22 @@ from launch.launch_description_sources import PythonLaunchDescriptionSource
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch_ros.actions import Node
-from launch.substitutions import LaunchConfiguration, Command, PathJoinSubstitution
+from launch.substitutions import (
+    LaunchConfiguration,
+    Command,
+    PathJoinSubstitution,
+    FindExecutable,
+)
 from launch_ros.substitutions import FindPackageShare
 from launch_ros.parameter_descriptions import ParameterValue
-from launch.actions import DeclareLaunchArgument, OpaqueFunction, IncludeLaunchDescription, GroupAction
+from launch.actions import (
+    IncludeLaunchDescription,
+    DeclareLaunchArgument,
+    GroupAction,
+    OpaqueFunction,
+    ExecuteProcess,
+    TimerAction,
+)
 from launch.conditions import UnlessCondition
 
 sim_configuration = LaunchConfiguration("simulation")
@@ -111,22 +123,37 @@ def launch_robot(context, *args, **kwargs):
         executable="realsense2_camera_node",
     )
 
-    return [
-        controller,
-        joystick,
-        # pointcloud_safety,
-        zero_twist,
-        twist_mux,
-        state_publisher,
-        GroupAction(
-        [
-            hardware_interface,
-            imu_xsens,
-            lidar,
-            realsense,
+    zenoh_bridge = ExecuteProcess(
+        cmd=[
+            FindExecutable(name="zenoh-bridge-ros2dds"),
+            "-c",
+            PathJoinSubstitution([robot_dir, "config", "zenoh_cfg.json5"]),
         ],
-        condition=UnlessCondition(sim_configuration),
-        ),
+    )
+
+
+    return [
+        zenoh_bridge,
+        TimerAction(
+            period=5.0,
+            actions=[
+                state_publisher,
+                controller,
+                joystick,
+                twist_mux,
+                zero_twist,
+                # Skip hardware interfaces when running in simulation
+                GroupAction(
+                    [
+                        hardware_interface,
+                        imu_xsens,
+                        lidar,
+                        realsense,
+                    ],
+                    condition=UnlessCondition(sim_configuration),
+                ),
+            ]
+        )
     ]
 
 
