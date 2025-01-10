@@ -2,7 +2,7 @@ repositories:
     ipa_outdoor_navigation:
         type: git
         url: git@gitlab.cc-asp.fraunhofer.de:ipa323/ipa_outdoor_navigation.git
-        version: jazzy_compatibility
+        version: jazzy-devel
     ipa_ros2_control:
         type: git
         url: git@gitlab.cc-asp.fraunhofer.de:ipa323/hardware/ipa_ros2_control.git
