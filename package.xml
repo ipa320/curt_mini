@@ -17,7 +17,6 @@
   <depend>rclpy</depend>
   <depend>velodyne_description</depend>
   <depend>velodyne</depend>
-  <depend>velodyne_gazebo_plugins</depend>
   <depend>xacro</depend>
   <depend>ouster_ros</depend>
   <depend>realsense2_camera</depend>
