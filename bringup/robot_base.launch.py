@@ -55,7 +55,7 @@ def launch_robot(context, *args, **kwargs):
 
     # start the hardware interface
     hardware_interface = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(os.path.join(get_package_share_directory('ipa_ros2_control'), 'launch', 'ros2_control.launch.py')),
+        PythonLaunchDescriptionSource(PathJoinSubstitution([FindPackageShare('ipa_ros2_control'), 'launch', 'ros2_control.launch.py'])),
         launch_arguments={'robot' : robot,
                           'gear_ratio' : gear_ratio,
                           'interface' : interface}.items()
