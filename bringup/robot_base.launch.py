@@ -117,6 +117,16 @@ def launch_robot(context, *args, **kwargs):
         parameters=[imu_xsens_path],
     )
 
+    imu_lpresearch = Node(
+        package="openzen_driver",
+        namespace="imu",
+        executable="openzen_node",
+        parameters=[
+            {"sensor_interface": "LinuxDevice"},
+            {"sensor_name": "devicefile:/dev/ttyLPMSCA3D00510053"},
+        ],
+    )
+
     realsense = Node(
         package="realsense2_camera",
         name="realsense2_camera_node",
@@ -146,7 +156,7 @@ def launch_robot(context, *args, **kwargs):
                 GroupAction(
                     [
                         hardware_interface,
-                        imu_xsens,
+                        imu_lpresearch,
                         lidar,
                         realsense,
                     ],
