@@ -156,6 +156,7 @@ def launch_robot(context, *args, **kwargs):
                 GroupAction(
                     [
                         hardware_interface,
+                        # imu_xsens,
                         imu_lpresearch,
                         lidar,
                         realsense,
