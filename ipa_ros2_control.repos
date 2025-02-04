@@ -1,9 +1,5 @@
 repositories:
-  tl_expected:
-    type: git
-    url: git@gitlab.cc-asp.fraunhofer.de:ipa323/third-party/tl_expected.git
-    version: ros2
   candle_ros2:
     type: git
-    url: https://github.com/mabrobotics/candle_ros2.git
-    version: main
+    url: git@gitlab.cc-asp.fraunhofer.de:ipa323/hardware/candle_ros2.git
+    version: ipa_main
