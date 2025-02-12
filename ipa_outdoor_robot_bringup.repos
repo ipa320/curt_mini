@@ -13,8 +13,8 @@ repositories:
         version: jazzy_pr
     candle_ros2:
         type: git
-        url: https://github.com/mabrobotics/candle_ros2
-        version: main
+        url: git@gitlab.cc-asp.fraunhofer.de:ipa323/hardware/candle_ros2.git
+        version: ipa_main
     ipa_twist_mux:
         type: git
         url: git@gitlab.cc-asp.fraunhofer.de:ipa323/ipa_twist_mux.git
