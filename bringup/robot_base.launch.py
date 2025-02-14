@@ -20,7 +20,7 @@ from launch.actions import (
     ExecuteProcess,
     TimerAction,
 )
-from launch.conditions import UnlessCondition
+from launch.conditions import UnlessCondition, IfCondition
 
 sim_configuration = LaunchConfiguration("simulation")
 
@@ -110,6 +110,24 @@ def launch_robot(context, *args, **kwargs):
         launch_arguments={"viz": "False", "params_file": ouster_path}.items(),
     )
 
+    lidar_livox = Node(
+        package="livox_ros2_driver",
+        executable="livox_ros2_driver_node",
+        name="livox_lidar_publisher",
+        output="screen",
+        condition=IfCondition(LaunchConfiguration("livox")),
+        # Livox IP is set to 192.168.131.101, the specific instance is found by serial number in the json config
+        parameters=[
+            {"publish_freq": 10.0},
+            {"frame_id": "livox"},
+            {
+                "user_config_path": PathJoinSubstitution(
+                    [robot_dir, "config", "livox_lidar_config.json"]
+                )
+            },
+        ],
+    )
+
     imu_xsens = Node(
         package="ipa_xsens_mti_driver",
         name="xsens_mti_node",
@@ -159,6 +177,7 @@ def launch_robot(context, *args, **kwargs):
                         # imu_xsens,
                         imu_lpresearch,
                         lidar,
+                        lidar_livox,
                         realsense,
                     ],
                     condition=UnlessCondition(sim_configuration),
@@ -208,4 +227,15 @@ def generate_launch_description():
         )
     )
 
-    return LaunchDescription(declared_arguments + [OpaqueFunction(function=launch_robot)])
+    declared_arguments.append(
+        DeclareLaunchArgument(
+            "livox",
+            default_value="False",
+            description="Launch livox lidar driver",
+            choices=["True", "False"],
+        )
+    )
+
+    return LaunchDescription(
+        declared_arguments + [OpaqueFunction(function=launch_robot)]
+    )

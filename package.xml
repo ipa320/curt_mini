@@ -20,6 +20,7 @@
   <depend>xacro</depend>
   <depend>ouster_ros</depend>
   <depend>realsense2_camera</depend>
+  <depend>livox_ros2_driver</depend>
 
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>
