@@ -1,4 +1,5 @@
 from launch import LaunchDescription
+from launch.actions import DeclareLaunchArgument
 import launch.substitution
 from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
@@ -47,7 +48,14 @@ def generate_launch_description():
         remappings=[('odom', 'odometry/wheel')]
     )
 
-    return LaunchDescription([
-        joint_state_broadcaster_spawner,
-        robot_controller_spawner,
-    ])
+    odom_topic_argument = DeclareLaunchArgument(
+        "odom_topic", default_value="/odometry/imu"
+    )
+
+    return LaunchDescription(
+        [
+            odom_topic_argument,
+            joint_state_broadcaster_spawner,
+            robot_controller_spawner,
+        ]
+    )
