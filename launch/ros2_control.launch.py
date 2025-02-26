@@ -41,7 +41,7 @@ def launch_ros2_control(context, *args, **kwargs):
             "stdout": "screen",
             "stderr": "screen",
         },
-        arguments={"USB", "1M"},
+        arguments=["USB", "1M"],
     )
     return [controller_manager_node,
             md80_manager_node]
