@@ -70,7 +70,7 @@ skid_steer_controller:
     angular_vel_pid.i_clamp_min: -0.7
     angular_vel_pid.antiwindup: true
     angular_vel_pid.max_time_diff: 1.0
-    control_loop_odometry_topic: "/odometry/imu"
+    control_loop_odometry_topic: "$(var odom_topic)"
     filter_odometry: true
     cut_off_frequency: 0.5
     linear_vel_pid.p: 0.0
