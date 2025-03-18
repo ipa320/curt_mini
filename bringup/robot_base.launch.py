@@ -120,6 +120,7 @@ def launch_robot(context, *args, **kwargs):
         parameters=[
             {"publish_freq": 10.0},
             {"frame_id": "livox"},
+            {"xfer_format": 4},
             {
                 "user_config_path": PathJoinSubstitution(
                     [robot_dir, "config", "livox_lidar_config.json"]
