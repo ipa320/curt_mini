@@ -108,6 +108,19 @@ def launch_robot(context, *args, **kwargs):
             )
         ),
         launch_arguments={"viz": "False", "params_file": ouster_path}.items(),
+        condition=IfCondition(LaunchConfiguration("ouster")),
+    )
+
+    robosense_path = PathJoinSubstitution([robot_dir, "config", "robosense.yaml"])
+    lidar_robosense = Node(
+        package="rslidar_sdk",
+        executable="rslidar_sdk_node",
+        name="rslidar_node",
+        output="screen",
+        condition=IfCondition(LaunchConfiguration("robosense")),
+        parameters=[
+            {"config_path": robosense_path}
+        ],
     )
 
     lidar_livox = Node(
@@ -142,7 +155,7 @@ def launch_robot(context, *args, **kwargs):
         executable="openzen_node",
         parameters=[
             {"sensor_interface": "LinuxDevice"},
-            {"sensor_name": "devicefile:/dev/ttyLPMSCA3D00510053"},
+            {"sensor_name": "devicefile:/dev/ttyLPMSCA31004A0056"},
         ],
     )
 
@@ -177,6 +190,7 @@ def launch_robot(context, *args, **kwargs):
                         hardware_interface,
                         # imu_xsens,
                         imu_lpresearch,
+                        lidar_robosense,
                         lidar,
                         lidar_livox,
                         realsense,
@@ -233,6 +247,24 @@ def generate_launch_description():
             "livox",
             default_value="False",
             description="Launch livox lidar driver",
+            choices=["True", "False"],
+        )
+    )
+    
+    declared_arguments.append(
+        DeclareLaunchArgument(
+            "robosense",
+            default_value="True",
+            description="Launch robosense lidar driver",
+            choices=["True", "False"],
+        )
+    )
+    
+    declared_arguments.append(
+        DeclareLaunchArgument(
+            "ouster",
+            default_value="False",
+            description="Launch ouster lidar driver",
             choices=["True", "False"],
         )
     )
