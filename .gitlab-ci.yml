@@ -1,0 +1,20 @@
+stages:
+  # Stage is used in https://gitlab.cc-asp.fraunhofer.de/ipa323_public/ci_templates/-/blob/master/jobs/random_reviewer.yml
+  - setup_mr
+  - build
+
+build-job:
+  stage: build
+  image: ros:jazzy
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "push"'
+      when: always
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+      when: always
+  script:
+    - colcon build --paths .
+
+include:
+  - project: ipa323_public/ci_templates
+    ref: 1b1104e319a3b89755e98ee071f9024fa5d9c325
+    file: jobs/random_reviewer.yml
