@@ -29,7 +29,7 @@ def launch_nav() -> list[Action]:
         launch_arguments={'robot' : robot,
                           'environment' : environment,
                           'launch_nav' : "True",
-                          'pointcloud_topic' : "/ouster/points",
+                          'pointcloud_topic' : "/rslidar_points",
                           }.items()
     )
 
