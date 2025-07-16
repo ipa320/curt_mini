@@ -175,10 +175,10 @@ def launch_robot(context, *args, **kwargs):
 
 
     return [
-        zenoh_bridge,
-        TimerAction(
-            period=5.0,
-            actions=[
+        # zenoh_bridge,
+        # TimerAction(
+        #     period=5.0,
+        #     actions=[
                 state_publisher,
                 controller,
                 joystick,
@@ -197,8 +197,8 @@ def launch_robot(context, *args, **kwargs):
                     ],
                     condition=UnlessCondition(sim_configuration),
                 ),
-            ]
-        )
+        #     ]
+        # )
     ]
 
 
