@@ -107,12 +107,23 @@
     <origin xyz="0.175 0.0 0.31" rpy="0 0 ${PI}" />
   </xacro:VLP-16> -->
 
-  <!-- Livox MID-70 LiDAR -->
-  <!-- Preliminary mount, to be changed once a proper mount is fabricated -->
+
+  <!-- livox mid-70 lidar -->
+  <!-- Mounted with 3D printed mounting adapter centered in Y-direction and as far forward as
+  possible on the robot -->
+  <!-- front bottom edge of housing -->
   <joint name="base_link_to_livox" type="fixed">
     <parent link="base_link" />
+    <child link="livox_housing" />
+    <origin xyz="0.268 0.0 0.25" rpy="0 0 0" />
+  </joint>
+  <link name="livox_housing" />
+
+  <!-- livox sensor frame -->
+  <joint name="livox_internal_offset" type="fixed">
+    <parent link="livox_housing" />
     <child link="livox" />
-    <origin xyz="0.2 0.0 0.3" rpy="${pi} 0 0" />
+    <origin xyz="-0.0162 0.0 0.0324" rpy="0 0 0" />
   </joint>
   <link name="livox" />
 
