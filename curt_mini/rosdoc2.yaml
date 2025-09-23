@@ -22,7 +22,7 @@ settings:
     ## TODO(wjwwood): provide a concrete example of this (relative path?)
 
     ## If this is not specified explicitly, it defaults to 'true'.
-    generate_package_index: true
+    generate_package_index: false
 
     ## This setting is relevant mostly if the standard Python package layout cannot
     ## be assumed for 'sphinx-apidoc' invocation. The user can provide the path
