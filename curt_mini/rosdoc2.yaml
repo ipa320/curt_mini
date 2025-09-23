@@ -56,10 +56,6 @@ builders:
     ##                   relative to --output-directory
     ##  * 'name' - used when referencing the built docs from the index.
 
-    - doxygen: {
-        name: 'curt_mini Public C/C++ API',
-        output_dir: 'generated/doxygen'
-    }
     - sphinx: {
         name: 'curt_mini',
         ## This path is relative to output staging.
