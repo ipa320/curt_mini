@@ -8,5 +8,7 @@ Welcome to CURTmini's documentation!
    :maxdepth: 2
    :caption: Contents:
 
+   electronics
+   software_setup
    sensors
    motor_control
