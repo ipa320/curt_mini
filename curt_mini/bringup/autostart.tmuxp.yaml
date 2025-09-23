@@ -1,0 +1,18 @@
+session_name: nav
+start_directory: ~/workspace
+global_options:
+  mouse: on
+  default-terminal: xterm-256color
+  history-limit: 300000
+windows:
+  - window_name: robot_base
+    layout: tiled
+    shell_command_before:
+      - source install/setup.bash
+      - export DISPLAY=:0
+    panes:
+      - shell_command:
+        - ros2 launch curt_mini robot_base.launch.py
+
+      - shell_command:
+        - echo ""
