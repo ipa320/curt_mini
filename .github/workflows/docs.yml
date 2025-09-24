@@ -21,7 +21,7 @@ jobs:
         uses: actions/upload-pages-artifact@v3
         with:
           path: docs_output/curt_mini/
-    
+
   deploy_docs:
     name: Deploy docs
     needs: build_docs
