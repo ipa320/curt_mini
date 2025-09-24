@@ -9,8 +9,8 @@
   <joint name="base_link_to_imu" type="fixed">
     <parent link="base_link" />
     <child link="imu_link" />
-    <!-- Position roughly estimated -->
-    <origin xyz="0.0 -0.03 0.14" rpy="0.0 0.0 ${pi/2}"/>
+    <!-- TODO: Verify new IMU mounting -->
+    <origin xyz="0.1 0.0 0.015" rpy="0.0 0.0 ${pi/2}"/>
   </joint>
   <link name="imu_link" />
 
