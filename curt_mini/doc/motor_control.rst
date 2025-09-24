@@ -1,3 +1,4 @@
+.. _motor_control:
 #############
 Motor Control
 #############
@@ -24,6 +25,4 @@ A `hardware interface`_ is provided for CURTmini, bridging ros2_control to candl
 ..
    TODO: publish fixed candle_ros2
 .. _`fixed version of the candle_ros2 package`: https://domain.invalid
-..
-   TODO: publish ipa_ros2_control/curt_mini_jazzy
-.. _`hardware interface`: https://domain.invalid
+.. _`hardware interface`: https://github.com/ipa320/curt_mini/tree/main/ipa_ros2_control
