@@ -66,7 +66,7 @@
     <child link="front_right_wheel" />
     <axis xyz="0 -1 0" />
     <dynamics damping="1.0" />
-    <limit effort="${max_effort}" velocity="${max_velocity}" />
+    <limit effort="${max_effort}" velocity="${max_wheel_velocity}" />
   </joint>
   <xacro:wheel_transmissions prefix="front_right_motor" />
 
@@ -98,7 +98,7 @@
     <child link="front_left_wheel" />
     <axis xyz="0 -1 0" />
     <dynamics damping="1.0" />
-    <limit effort="${max_effort}" velocity="${max_velocity}" />
+    <limit effort="${max_effort}" velocity="${max_wheel_velocity}" />
   </joint>
   <xacro:wheel_transmissions prefix="front_left_motor" />
 
@@ -130,7 +130,7 @@
     <child link="back_right_wheel" />
     <axis xyz="0 -1 0" />
     <dynamics damping="1.0" />
-    <limit effort="${max_effort}" velocity="${max_velocity}" />
+    <limit effort="${max_effort}" velocity="${max_wheel_velocity}" />
   </joint>
   <xacro:wheel_transmissions prefix="back_right_motor" />
 
@@ -162,7 +162,7 @@
     <child link="back_left_wheel" />
     <axis xyz="0 -1 0" />
     <dynamics damping="1.0" />
-    <limit effort="${max_effort}" velocity="${max_velocity}" />
+    <limit effort="${max_effort}" velocity="${max_wheel_velocity}" />
   </joint>
   <xacro:wheel_transmissions prefix="back_left_motor" />
 

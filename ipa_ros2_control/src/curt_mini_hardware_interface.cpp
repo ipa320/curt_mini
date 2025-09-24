@@ -22,7 +22,7 @@ CallbackReturn CurtMiniHardwareInterface::on_init(const hardware_interface::Hard
 
   RCLCPP_INFO(nh_->get_logger(), "Name: %s", info_.name.c_str());
 
-  RCLCPP_INFO(nh_->get_logger(), "Number of Joints %u", info_.joints.size());
+  RCLCPP_INFO(nh_->get_logger(), "Number of Joints %zu", info_.joints.size());
 
   hw_states_position_.resize(info_.joints.size(), std::numeric_limits<double>::quiet_NaN());
   hw_states_velocity_.resize(info_.joints.size(), std::numeric_limits<double>::quiet_NaN());

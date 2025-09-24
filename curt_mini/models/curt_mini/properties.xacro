@@ -7,7 +7,8 @@
 
     <!-- robot limits -->
     <xacro:property name="max_effort" value="50.0" />
-    <xacro:property name="max_velocity" value="5.0" />
+    <!-- joint limit for wheels, radian/second -->
+    <xacro:property name="max_velocity" value="20.0" />
     <xacro:property name="wheel_radius" value="0.13" />
     <xacro:property name="wheel_width" value="0.08" />
 
