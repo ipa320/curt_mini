@@ -7,7 +7,8 @@ on:
 jobs:
   build_docs:
     name: Build docs
-    runs-on: ros:jazzy
+    runs-on: ubuntu-latest
+    container: ros:jazzy
     steps:
       - name: Install rosdoc2
         run: apt install -y python3-rosdoc2
