@@ -1,0 +1,5 @@
+repositories:
+  candle_ros2:
+    type: git
+    url: git@gitlab.cc-asp.fraunhofer.de:ipa323/hardware/candle_ros2.git
+    version: ipa_main
