@@ -11,7 +11,7 @@ jobs:
     container: ros:jazzy
     steps:
       - name: Install rosdoc2
-        run: apt install -y python3-rosdoc2
+        run: apt update && apt install -y python3-rosdoc2
       - name: Check out repo
         uses: actions/checkout@v3
       - name: Run rosdocs
