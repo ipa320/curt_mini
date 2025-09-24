@@ -1,3 +1,0 @@
-<library path="ipa_ros2_control">
-    <class name="ipa_ros2_control/MvpHardwareInterface" type="ipa_ros2_control::MvpHardwareInterface" base_class_type="hardware_interface::SystemInterface"></class>
-</library>
