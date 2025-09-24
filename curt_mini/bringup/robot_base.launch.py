@@ -122,6 +122,7 @@ def launch_robot():
                 "sensor_name": "devicefile:/dev/"
                 + find_serial_device_by_prefix("ttyLPMS", "ttyLPMSCA3D00510053")
             },
+            {"frame_id": "imu_link"},
         ],
     )
 
