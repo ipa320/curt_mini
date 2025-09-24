@@ -14,7 +14,7 @@ jobs:
         run: apt update && apt install -y python3-rosdoc2
       - name: Check out repo
         uses: actions/checkout@v3
-      - name: Run rosdocs
+      - name: Run rosdoc2
         run: rosdoc2 build --package-path curt_mini
       - name: Upload static files as artifact
         id: deployment
