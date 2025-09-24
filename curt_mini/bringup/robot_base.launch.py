@@ -91,7 +91,7 @@ def launch_robot():
                 ]
             )
         ),
-        launch_arguments={"robot": LaunchConfiguration("robot")}.items(),
+        launch_arguments={"robot": robot}.items(),
     )
 
     zero_twist = Node(
