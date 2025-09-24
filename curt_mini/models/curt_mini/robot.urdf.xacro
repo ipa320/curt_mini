@@ -15,11 +15,15 @@
   <!-- Include sensors -->
   <xacro:include filename="$(find curt_mini)/models/curt_mini/sensors.xacro" />
 
-  <link name="base_link">
+  <link name="base_link" />
+
+  <!-- Chassis link at same position as base_link, as root is not allowed to have inertial information -->
+  <link name="chassis">
     <inertial>
       <origin xyz="-0.0076959 -0.0021447 0.056616" rpy="0 0 0" />
       <mass value="9.6512" />
-      <inertia ixx="0.036046" ixy="-1.6181E-05" ixz="-0.00088314" iyy="0.10986" iyz="-3.4695E-06" izz="0.12533" />
+      <inertia ixx="0.036046" ixy="-1.6181E-05" ixz="-0.00088314" iyy="0.10986" iyz="-3.4695E-06"
+        izz="0.12533" />
     </inertial>
     <visual>
       <origin xyz="0 0 0" rpy="0 0 0" />
@@ -37,12 +41,17 @@
       </geometry>
     </collision>
   </link>
+  <joint name="base_to_footprint" type="fixed">
+    <parent link="base_link" />
+    <child link="chassis" />
+  </joint>
 
   <link name="front_right_wheel">
     <inertial>
       <origin xyz="-5.87030424270552E-15 0.00750997550383756 -5.38805111638396E-15" rpy="0 0 0" />
       <mass value="1.16081815267191" />
-      <inertia ixx="0.00489876810873934" ixy="9.50165704321153E-19" ixz="-2.61848606081355E-08" iyy="0.00918238967794609" iyz="-1.71449040958554E-17" izz="0.00489885881575725" />
+      <inertia ixx="0.00489876810873934" ixy="9.50165704321153E-19" ixz="-2.61848606081355E-08"
+        iyy="0.00918238967794609" iyz="-1.71449040958554E-17" izz="0.00489885881575725" />
     </inertial>
     <visual>
       <origin xyz="0 0 0" rpy="0 0 0" />
@@ -56,7 +65,7 @@
     <collision>
       <origin xyz="0 0.01 0" rpy="${PI / 2} 0 0" />
       <geometry>
-        <cylinder radius="${wheel_radius}" length="${wheel_width}"/>
+        <cylinder radius="${wheel_radius}" length="${wheel_width}" />
       </geometry>
     </collision>
   </link>
@@ -74,7 +83,8 @@
     <inertial>
       <origin xyz="2.97539770599542E-14 -0.00750997550383714 6.53053999766229E-14" rpy="0 0 0" />
       <mass value="1.16081815267191" />
-      <inertia ixx="0.00489876810873935" ixy="3.91724337570418E-19" ixz="2.61848606067545E-08" iyy="0.00918238967794612" iyz="1.81861039773823E-17" izz="0.00489885881575728" />
+      <inertia ixx="0.00489876810873935" ixy="3.91724337570418E-19" ixz="2.61848606067545E-08"
+        iyy="0.00918238967794612" iyz="1.81861039773823E-17" izz="0.00489885881575728" />
     </inertial>
     <visual>
       <origin xyz="0 0 0" rpy="0 0 0" />
@@ -88,7 +98,7 @@
     <collision>
       <origin xyz="0 -0.01 0" rpy="${PI / 2} 0 0" />
       <geometry>
-        <cylinder radius="${wheel_radius}" length="${wheel_width}"/>
+        <cylinder radius="${wheel_radius}" length="${wheel_width}" />
       </geometry>
     </collision>
   </link>
@@ -106,7 +116,8 @@
     <inertial>
       <origin xyz="-3.25850457727483E-14 0.00750997550383728 5.8935495372836E-14" rpy="0 0 0" />
       <mass value="1.16081815267191" />
-      <inertia ixx="0.00489876810873933" ixy="9.33801693307905E-19" ixz="-2.61848606033406E-08" iyy="0.00918238967794609" iyz="-1.82258288287945E-17" izz="0.00489885881575725" />
+      <inertia ixx="0.00489876810873933" ixy="9.33801693307905E-19" ixz="-2.61848606033406E-08"
+        iyy="0.00918238967794609" iyz="-1.82258288287945E-17" izz="0.00489885881575725" />
     </inertial>
     <visual>
       <origin xyz="0 0 0" rpy="0 0 0" />
@@ -120,7 +131,7 @@
     <collision>
       <origin xyz="0 0.01 0" rpy="${PI / 2} 0 0" />
       <geometry>
-        <cylinder radius="${wheel_radius}" length="${wheel_width}"/>
+        <cylinder radius="${wheel_radius}" length="${wheel_width}" />
       </geometry>
     </collision>
   </link>
@@ -138,7 +149,8 @@
     <inertial>
       <origin xyz="3.05311331771918E-15 -0.00750997550383753 2.26554885962571E-15" rpy="0 0 0" />
       <mass value="1.16081815267191" />
-      <inertia ixx="0.00489876810873933" ixy="1.74686590365548E-18" ixz="2.61848606031113E-08" iyy="0.00918238967794607" iyz="1.56928180377104E-17" izz="0.00489885881575724" />
+      <inertia ixx="0.00489876810873933" ixy="1.74686590365548E-18" ixz="2.61848606031113E-08"
+        iyy="0.00918238967794607" iyz="1.56928180377104E-17" izz="0.00489885881575724" />
     </inertial>
     <visual>
       <origin xyz="0 0 0" rpy="0 0 0" />
@@ -152,7 +164,7 @@
     <collision>
       <origin xyz="0 -0.01 0" rpy="${PI / 2} 0 0" />
       <geometry>
-        <cylinder radius="${wheel_radius}" length="${wheel_width}"/>
+        <cylinder radius="${wheel_radius}" length="${wheel_width}" />
       </geometry>
     </collision>
   </link>
@@ -167,7 +179,7 @@
   <xacro:wheel_transmissions prefix="back_left_motor" />
 
   <!-- Import gazebo infos -->
-  <xacro:if value="$(arg simulation)" >
+  <xacro:if value="$(arg simulation)">
     <xacro:include filename="$(find curt_mini)/models/curt_mini/gazebo.xacro" />
   </xacro:if>
 
