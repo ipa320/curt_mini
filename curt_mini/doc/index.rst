@@ -4,6 +4,11 @@
 Welcome to CURTmini's documentation!
 ====================================
 
+.. image:: media/curt_mini_rendering.png
+   :width: 70%
+   :alt: Rendering of CURTmini CAD model
+   :align: center
+
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
@@ -12,3 +17,4 @@ Welcome to CURTmini's documentation!
    software_setup
    sensors
    motor_control
+   ros_base
