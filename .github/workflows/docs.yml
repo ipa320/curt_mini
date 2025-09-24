@@ -1,0 +1,37 @@
+on:
+  push:
+    branches:
+      - release
+      - main
+
+jobs:
+  build_docs:
+    name: Build docs
+    runs-on: ros:jazzy
+    steps:
+      - name: Install rosdoc2
+        run: apt install -y python3-rosdoc2
+      - name: Check out repo
+        uses: actions/checkout@v3
+      - name: Run rosdocs
+        run: rosdoc2 build --package-path curt_mini
+      - name: Upload static files as artifact
+        id: deployment
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs_output/curt_mini/
+    
+  deploy_docs:
+    name: Deploy docs
+    needs: build_docs
+    permissions:
+      pages: write      # to deploy to Pages
+      id-token: write   # to verify the deployment originates from an appropriate source
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps: 
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
