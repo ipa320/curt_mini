@@ -37,7 +37,7 @@ def generate_launch_description():
         executable="spawner",
         arguments=["--param-file", param_file, "skid_steer_controller"],
         output="screen",
-        remappings=[('odom', 'odometry/wheel')]
+        remappings=[("odom", "odometry/wheel")],
     )
 
     joint_state_broadcaster_spawner = Node(
@@ -45,11 +45,13 @@ def generate_launch_description():
         executable="spawner",
         arguments=["--param-file", param_file, "joint_state_broadcaster"],
         output="screen",
-        remappings=[('odom', 'odometry/wheel')]
+        remappings=[("odom", "odometry/wheel")],
     )
 
     odom_topic_argument = DeclareLaunchArgument(
-        "odom_topic", default_value="/odometry/imu"
+        "odom_topic",
+        default_value="/odometry/imu",
+        description="Odometry topic used as feedback for closed loop angular twist base controller",
     )
 
     return LaunchDescription(
