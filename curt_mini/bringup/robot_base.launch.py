@@ -13,6 +13,7 @@ from launch.actions import (
     IncludeLaunchDescription,
     DeclareLaunchArgument,
     GroupAction,
+    ExecuteProcess,
 )
 from launch.conditions import UnlessCondition
 
@@ -94,13 +95,18 @@ def launch_robot():
         launch_arguments={"robot": robot}.items(),
     )
 
-    zero_twist = Node(
-        package="ipa_twist_mux",
-        executable="zero_twist_publisher",
-        name="zero_twist_publisher",
-        output="screen",
-        remappings=[("/twist", "/zero_twist/cmd_vel")],
-        parameters=[{"use_sim_time": False}],
+    zero_twist = ExecuteProcess(
+        cmd=[
+            "ros2",
+            "topic",
+            "pub",
+            "--rate",
+            "50",
+            "--print",
+            "0",
+            "/zero_twist/cmd_vel",
+            "geometry_msgs/msg/Twist",
+        ],
     )
 
     twist_mux = Node(

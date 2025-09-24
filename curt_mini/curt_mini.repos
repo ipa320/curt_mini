@@ -1,8 +1,4 @@
 repositories:
-    ipa_ros2_control:
-        type: git
-        url: git@gitlab.cc-asp.fraunhofer.de:ipa323/hardware/ipa_ros2_control.git
-        version: curt_mini_jazzy
     ipa_ros2_controllers:
         type: git
         url: git@gitlab.cc-asp.fraunhofer.de:ipa323/hardware/ipa_ros2_controllers.git
@@ -11,15 +7,3 @@ repositories:
         type: git
         url: git@gitlab.cc-asp.fraunhofer.de:ipa323/hardware/candle_ros2.git
         version: ipa_main
-    ipa_twist_mux:
-        type: git
-        url: git@gitlab.cc-asp.fraunhofer.de:ipa323/ipa_twist_mux.git
-        version: ros2
-    livox_ros2_driver:
-        type: git
-        url: https://github.com/ottojo/livox_ros2_driver.git
-        version: master
-    rslidar_sdk:
-        type: git
-        url: https://github.com/RoboSense-LiDAR/rslidar_sdk.git
-        version: main

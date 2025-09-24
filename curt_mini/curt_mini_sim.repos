@@ -3,7 +3,3 @@ repositories:
         type: git
         url: git@gitlab.cc-asp.fraunhofer.de:ipa323/hardware/ipa_ros2_controllers.git
         version: jazzy-devel
-    ipa_twist_mux:
-        type: git
-        url: git@gitlab.cc-asp.fraunhofer.de:ipa323/ipa_twist_mux.git
-        version: ros2
