@@ -42,8 +42,8 @@ diff_drive_controller:
     linear.x.min_velocity: -1.5
     linear.x.max_acceleration: 2.5
     linear.x.max_deceleration: -2.5
-    linear.x.max_acceleration_reverse: 2.5
-    linear.x.max_deceleration_reverse: -2.5
+    linear.x.max_acceleration_reverse: -2.5
+    linear.x.max_deceleration_reverse: 2.5
     linear.x.max_jerk: .NAN
     linear.x.min_jerk: .NAN
 
@@ -51,7 +51,7 @@ diff_drive_controller:
     angular.z.min_velocity: -12.0
     angular.z.max_acceleration: 15.0
     angular.z.max_deceleration: -15.0
-    angular.z.max_acceleration_reverse: 15.0
-    angular.z.max_deceleration_reverse: -15.0
+    angular.z.max_acceleration_reverse: -15.0
+    angular.z.max_deceleration_reverse: 15.0
     angular.z.max_jerk: .NAN
     angular.z.min_jerk: .NAN
