@@ -116,7 +116,7 @@ def launch_robot():
         name="twist_mux",
         output="screen",
         parameters=[twist_mux_path, {"use_sim_time": False}],
-        remappings=[("/cmd_vel_out", "/skid_steer_controller/cmd_vel_unstamped")],
+        remappings=[("/cmd_vel_out", "/base_controller/cmd_vel")],
     )
 
     imu_lpresearch = Node(

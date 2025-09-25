@@ -17,11 +17,15 @@ def generate_launch_description():
             "--param-file",
             param_file,
             "--controller-ros-args",
-            "-r diff_drive_controller/odom:=/odometry/wheel",
+            " ".join(
+                [
+                    "-r diff_drive_controller/odom:=/odometry/wheel",
+                    "-r diff_drive_controller/cmd_vel:=/base_controller/cmd_vel",
+                ]
+            ),
             "diff_drive_controller",
         ],
         output="screen",
-        remappings=[("odom", "odometry/wheel")],
     )
 
     joint_state_broadcaster_spawner = Node(
