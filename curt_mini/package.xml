@@ -15,13 +15,8 @@
   <depend>robot_state_publisher</depend>
   <depend>rclcpp</depend>
   <depend>rclpy</depend>
-  <depend>velodyne_description</depend>
-  <depend>velodyne</depend>
   <depend>xacro</depend>
-  <depend>ouster_ros</depend>
-  <depend>realsense2_camera</depend>
-  <depend>livox_ros2_driver</depend>
-  <depend>rslidar_sdk</depend>
+  <exec_depend>twist_mux</exec_depend>
 
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>

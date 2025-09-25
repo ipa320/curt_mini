@@ -1,41 +1,25 @@
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument
-import launch.substitution
 from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
 from launch.substitutions import PathJoinSubstitution
-from launch_ros.parameter_descriptions import ParameterFile
-import typing
-
-
-class ResultingParameterFilePath(launch.substitution.Substitution):
-    """
-    Substitution which resolves to the path of the temporary file created by ParameterFile
-    """
-
-    def __init__(self, parameter_file: ParameterFile) -> None:
-        super().__init__()
-        self.__parameter_file = parameter_file
-
-    def perform(self, context: launch.launch_context.LaunchContext) -> typing.Text:
-        return self.__parameter_file.evaluate(context).absolute().as_posix()
 
 
 def generate_launch_description():
 
-    param_file = ResultingParameterFilePath(
-        ParameterFile(
-            PathJoinSubstitution(
-                [FindPackageShare("curt_mini"), "config", "ros2_control.yaml"]
-            ),
-            allow_substs=True,
-        )
+    param_file = PathJoinSubstitution(
+        [FindPackageShare("curt_mini"), "config", "ros2_control.yaml"]
     )
 
     robot_controller_spawner = Node(
         package="controller_manager",
         executable="spawner",
-        arguments=["--param-file", param_file, "skid_steer_controller"],
+        arguments=[
+            "--param-file",
+            param_file,
+            "--controller-ros-args",
+            "-r diff_drive_controller/odom:=/odometry/wheel",
+            "diff_drive_controller",
+        ],
         output="screen",
         remappings=[("odom", "odometry/wheel")],
     )
@@ -43,20 +27,16 @@ def generate_launch_description():
     joint_state_broadcaster_spawner = Node(
         package="controller_manager",
         executable="spawner",
-        arguments=["--param-file", param_file, "joint_state_broadcaster"],
+        arguments=[
+            "--param-file",
+            param_file,
+            "joint_state_broadcaster",
+        ],
         output="screen",
-        remappings=[("odom", "odometry/wheel")],
-    )
-
-    odom_topic_argument = DeclareLaunchArgument(
-        "odom_topic",
-        default_value="/odometry/imu",
-        description="Odometry topic used as feedback for closed loop angular twist base controller",
     )
 
     return LaunchDescription(
         [
-            odom_topic_argument,
             joint_state_broadcaster_spawner,
             robot_controller_spawner,
         ]

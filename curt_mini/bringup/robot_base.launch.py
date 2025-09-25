@@ -101,11 +101,12 @@ def launch_robot():
             "topic",
             "pub",
             "--rate",
-            "50",
+            "20",
             "--print",
             "0",
             "/zero_twist/cmd_vel",
-            "geometry_msgs/msg/Twist",
+            "geometry_msgs/msg/TwistStamped",
+            "{header: {stamp: now, frame_id: 'base_link'}}",
         ],
     )
 

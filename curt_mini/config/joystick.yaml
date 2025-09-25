@@ -57,6 +57,7 @@ joy_teleop/teleop_twist_joy_node:
       yaw: 3.6
     enable_button: 4
     enable_turbo_button: 5
+    publish_stamped_twist: true
 joy_teleop/joy_node:
   ros__parameters:
     deadzone: 0.1
