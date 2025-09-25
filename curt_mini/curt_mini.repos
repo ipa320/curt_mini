@@ -1,9 +1,5 @@
 repositories:
-    ipa_ros2_controllers:
-        type: git
-        url: git@gitlab.cc-asp.fraunhofer.de:ipa323/hardware/ipa_ros2_controllers.git
-        version: jazzy-devel
-    candle_ros2:
-        type: git
-        url: git@gitlab.cc-asp.fraunhofer.de:ipa323/hardware/candle_ros2.git
-        version: ipa_main
+  openzenros2:
+    type: git
+    url: https://github.com/ipa323/openzenros2.git
+    version: master

@@ -1,5 +1,0 @@
-repositories:
-    ipa_ros2_controllers:
-        type: git
-        url: git@gitlab.cc-asp.fraunhofer.de:ipa323/hardware/ipa_ros2_controllers.git
-        version: jazzy-devel
