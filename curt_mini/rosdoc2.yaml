@@ -59,6 +59,5 @@ builders:
     - sphinx: {
         name: 'curt_mini',
         ## This path is relative to output staging.
-        doxygen_xml_directory: 'generated/doxygen/xml',
         output_dir: ''
-    }
+        }
