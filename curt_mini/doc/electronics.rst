@@ -11,6 +11,14 @@ CURTmini or the battery don't include an integrated BMS, it is recommended to us
 The battery input connector is of XT90 type and located in the front left inside the robot.
 The battery input is fused with a Z-Amp resettable fuse.
 
+******
+Switch
+******
+
+The power switch is located on the left back side of the robot.
+The latching pushbutton switches the battery connection to the motors and electronics via a relay.
+The PC turns on automatically as soon as it is supplied with power.
+
 ********
 Voltages
 ********

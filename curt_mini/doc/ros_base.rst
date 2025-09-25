@@ -55,6 +55,7 @@ The configuration can be adjusted in `twist_mux.yaml`_.
 
 .. _`twist_mux.yaml`: https://github.com/ipa320/curt_mini/blob/main/curt_mini/config/twist_mux.yaml
 
+.. _joystick:
 ========
 Joystick
 ========
