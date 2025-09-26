@@ -21,17 +21,4 @@
         <fdir1 value="1 0 0" />
     </xacro:macro>
 
-    <!-- transmissions -->
-    <xacro:macro name="wheel_transmissions" params="prefix">
-        <transmission name="${prefix}_wheel_trans">
-            <type>transmission_interface/SimpleTransmission</type>
-            <joint name="${prefix}">
-              <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
-            </joint>
-            <actuator name="${prefix}_wheel_actuator">
-              <mechanicalReduction>1</mechanicalReduction>
-            </actuator>
-          </transmission>
-    </xacro:macro>
-
 </robot>
