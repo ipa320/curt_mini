@@ -9,7 +9,7 @@ PC Setup, Network
 *****************
 
 The default username to access the robot is :code:`curt`, with password :code:`curtmini`.
-You can either attach keyboard and mouse and a screen to the integrated computer (NUC), connect to the robot hotspot :code:`nuc_curt_mini` using password :code:`curtmini`, or manually connect CURTmini to an existing WiFi network.
+You can either attach keyboard and mouse and a screen to the integrated computer (NUC), connect to the robot hotspot :code:`nuc-curt-mini-...` using password :code:`curtmini`, or manually connect CURTmini to an existing WiFi network.
 In the robot hotspot, the NUC has the IP address :code:`10.42.0.1`.
 
 *************
