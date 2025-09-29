@@ -6,17 +6,17 @@ Motor Control
 
 The motors on CURTmini are of type MD80 from MAB robotics.
 
-+-------+----------+
-| Motor | Drive ID |
-+=======+==========+
-| Right | 100      |
-+-------+----------+
-| Left  | 101      |
-+-------+----------+
-| Right | 102      |
-+-------+----------+
-| Left  | 103      |
-+-------+----------+
++-------------+----------+
+| Motor       | Drive ID |
++=============+==========+
+| Front Right | 100      |
++-------------+----------+
+| Front Left  | 101      |
++-------------+----------+
+| Back Right  | 102      |
++-------------+----------+
+| Back Left   | 103      |
++-------------+----------+
 
 A `fixed version of the candle_ros2 package`_ for ROS 2 Jazzy is provided and already installed.
 Motor control is handled through `ros2_control`_.
