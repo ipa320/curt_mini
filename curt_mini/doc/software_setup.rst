@@ -44,6 +44,9 @@ This is implemented using a systemd service :code:`ipa-ros-autostart`:
     PartOf=ipa-tmux-master.service
     After=ipa-tmux-master.service
 
+    Wants=multicast-lo.service
+    After=multicast-lo.service
+
     [Service]
     Type=oneshot
     RemainAfterExit=yes
@@ -53,6 +56,7 @@ This is implemented using a systemd service :code:`ipa-ros-autostart`:
 
     [Install]
     WantedBy=multi-user.target
+
 
 Which requires an additional systemd service to start the host tmux session:
 
@@ -69,6 +73,69 @@ Which requires an additional systemd service to start the host tmux session:
 
     [Install]
     WantedBy=multi-user.target
+
+And a service to enable multicast on the loopback interface, as specified in the `autoware documentation`_.
+
+.. _`autoware documentation`: https://autowarefoundation.github.io/autoware-documentation/main/installation/additional-settings-for-developers/network-configuration/enable-multicast-for-lo/
+
+***
+RMW
+***
+CycloneDDS is configured as the default RMW implementation using the following environment variables in :code:`.bashrc`:
+
+.. code-block:: bash
+
+  source /opt/ros/jazzy/setup.bash
+  export RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
+  export CYCLONEDDS_URI="file:///opt/ros/cyclonedds-config.xml"
+
+By default, only the loopback interface is enabled.
+Add more network interfaces here if multi-host communication is desired.
+
+.. code-block:: xml
+
+  <CycloneDDS xmlns="https://cdds.io/config" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="https://cdds.io/config https://raw.githubusercontent.com/eclipse-cyclonedds/cyclonedds/master/etc/cyclonedds.xsd">
+    <Domain Id="any">
+      <General>
+        <Interfaces>
+          <NetworkInterface autodetermine="false" name="lo" priority="default" multicast="default" />
+        </Interfaces>
+        <AllowMulticast>true</AllowMulticast>
+        <MaxMessageSize>65500B</MaxMessageSize>
+      </General>
+      <Discovery>
+        <MaxAutoParticipantIndex>100</MaxAutoParticipantIndex>
+      </Discovery>
+      <Internal>
+        <SocketReceiveBufferSize min="10MB" />
+        <Watermarks>
+          <WhcHigh>500kB</WhcHigh>
+        </Watermarks>
+      </Internal>
+    </Domain>
+  </CycloneDDS>
+
+The corresponding buffer sizes are specified in :code:`/etc/sysctl.conf`:
+
+.. code-block:: ini
+
+  net.core.rmem_max=2147483647
+  net.core.wmem_max=2147483647
+
+****
+UDEV
+****
+Udev rules are installed for permissions and identification of the joystick controller and IMU:
+
+.. code-block:: ini
+
+  # Logitech F710 joystick at /dev/input/f710
+  KERNEL=="js[0-9]*", ATTRS{name}=="Logitech Gamepad F710", SYMLINK+="input/f710"
+
+.. code-block:: ini
+
+  # LP-Research IMUs as /dev/tty<SERIAL NUMBER>
+  SUBSYSTEM=="tty", ENV{ID_SERIAL_SHORT}=="LPMS*", SYMLINK+="tty%E{ID_SERIAL_SHORT}"
 
 ****
 BIOS
