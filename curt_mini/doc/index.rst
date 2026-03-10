@@ -9,6 +9,9 @@ Welcome to CURTmini's documentation!
    :alt: Rendering of CURTmini CAD model
    :align: center
 
+| **CURT**\ mini is available for purchase for research institutions and universities. The system can be highly customized to meet specific research needs.
+| Starting price: €17,200.
+
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
