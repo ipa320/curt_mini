@@ -9,6 +9,8 @@ Welcome to CURTmini's documentation!
 
    | CURTmini is developed for research institutions and universities. The system can be highly customized to meet specific research needs.
    | **From €17,200**
+   |
+   | Interested? Contact us via: +49 711 970-1371 or kevin.bregler@ipa.fraunhofer.de
 
 .. image:: media/curt_mini_rendering.png
    :width: 70%
