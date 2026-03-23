@@ -26,6 +26,7 @@ Welcome to CURTmini's documentation!
    sensors
    motor_control
    ros_base
+   sensor_mounts/index
 
 Getting Started with CURTmini
 -----------------------------
