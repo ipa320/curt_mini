@@ -2,6 +2,10 @@
 ROS Base
 ########
 
+The sources can be found in the corresponding `github repo`_.
+
+.. _`github repo`: https://github.com/ipa320/curt_mini
+
 ============
 Launch Files
 ============
