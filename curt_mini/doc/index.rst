@@ -4,6 +4,12 @@
 Welcome to CURTmini's documentation!
 ====================================
 
+.. raw:: html
+
+   <div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 100%; height: auto; margin-bottom: 2em;">
+        <iframe src="https://www.youtube.com/embed/ndHcemWPFGI?si=yGynxAYKbeTcNBP1" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"></iframe>
+    </div>
+
 .. admonition:: Available for Purchase
    :class: none
 
