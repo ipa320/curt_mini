@@ -1,5 +1,5 @@
 repositories:
   candle_ros2:
     type: git
-    url: https://github.com/ipa323/candle_ros2.git
-    version: main
+    url: https://github.com/mabrobotics/candle_ros2.git
+    version: v2.1.2
