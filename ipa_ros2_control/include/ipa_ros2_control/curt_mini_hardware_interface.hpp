@@ -35,14 +35,13 @@
 #include "rclcpp_lifecycle/node_interfaces/lifecycle_node_interface.hpp"
 #include "rclcpp_lifecycle/state.hpp"
 
-#include "candle_ros2/msg/impedance_command.hpp"
-#include "candle_ros2/msg/motion_command.hpp"
-#include "candle_ros2/msg/position_pid_command.hpp"
-#include "candle_ros2/msg/velocity_pid_command.hpp"
-#include "candle_ros2/srv/add_md80s.hpp"
-#include "candle_ros2/srv/generic_md80_msg.hpp"
-#include "candle_ros2/srv/set_limits_md80.hpp"
-#include "candle_ros2/srv/set_mode_md80s.hpp"
+#include "candle_ros2/msg/motion_cmd.hpp"
+#include "candle_ros2/msg/position_pid_cmd.hpp"
+#include "candle_ros2/msg/velocity_pid_cmd.hpp"
+#include "candle_ros2/srv/add_devices.hpp"
+#include "candle_ros2/srv/generic.hpp"
+#include "candle_ros2/srv/set_limits.hpp"
+#include "candle_ros2/srv/set_mode.hpp"
 
 namespace ipa_ros2_control
 {
@@ -103,13 +102,13 @@ private:
       typename candle_srv_type::Request::SharedPtr request = std::make_shared<typename candle_srv_type::Request>())
   {
     RCLCPP_INFO_STREAM(nh_->get_logger(), "Calling " << client->get_service_name());
-    request->drive_ids = { 102, 100, 103, 101 }; // { br , fr, bl , fl}
+    request->device_ids = { 102, 100, 103, 101 }; // { br , fr, bl , fl}
     auto result = client->async_send_request(request);
     if (rclcpp::spin_until_future_complete(nh_, result, std::chrono::seconds{5}) == rclcpp::FutureReturnCode::SUCCESS)
     {
       RCLCPP_INFO_STREAM(nh_->get_logger(), "Calling ");
       auto res = *result.get();
-      if (!std::all_of(res.drives_success.begin(), res.drives_success.end(),
+      if (!std::all_of(res.success.begin(), res.success.end(),
                        [](bool b) { return b; }))
       {
         RCLCPP_ERROR_STREAM(nh_->get_logger(),
@@ -130,15 +129,15 @@ private:
   std::vector<double> hw_states_position_, hw_states_velocity_;
   sensor_msgs::msg::JointState motor_joint_state_;
   // ROS services
-  rclcpp::Client<candle_ros2::srv::AddMd80s>::SharedPtr add_controller_service_client_;
-  rclcpp::Client<candle_ros2::srv::SetModeMd80s>::SharedPtr set_mode_service_client_;
-  rclcpp::Client<candle_ros2::srv::GenericMd80Msg>::SharedPtr set_zero_service_client_;
-  rclcpp::Client<candle_ros2::srv::GenericMd80Msg>::SharedPtr enable_motors_service_client_;
-  rclcpp::Client<candle_ros2::srv::GenericMd80Msg>::SharedPtr disable_motors_service_client_;
+  rclcpp::Client<candle_ros2::srv::AddDevices>::SharedPtr add_controller_service_client_;
+  rclcpp::Client<candle_ros2::srv::SetMode>::SharedPtr set_mode_service_client_;
+  rclcpp::Client<candle_ros2::srv::Generic>::SharedPtr set_zero_service_client_;
+  rclcpp::Client<candle_ros2::srv::Generic>::SharedPtr enable_motors_service_client_;
+  rclcpp::Client<candle_ros2::srv::Generic>::SharedPtr disable_motors_service_client_;
 
   // ROS publishers
-  rclcpp::Publisher<candle_ros2::msg::MotionCommand>::SharedPtr command_pub_;
-  rclcpp::Publisher<candle_ros2::msg::VelocityPidCommand>::SharedPtr config_pub_;
+  rclcpp::Publisher<candle_ros2::msg::MotionCmd>::SharedPtr command_pub_;
+  rclcpp::Publisher<candle_ros2::msg::VelocityPidCmd>::SharedPtr config_pub_;
 
   // ROS subscribers
   rclcpp::Subscription<sensor_msgs::msg::JointState>::SharedPtr joint_state_sub_;

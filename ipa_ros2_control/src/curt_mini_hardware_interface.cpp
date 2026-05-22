@@ -69,17 +69,16 @@ CallbackReturn CurtMiniHardwareInterface::on_init(const hardware_interface::Hard
     // return CallbackReturn::SUCCESS;
   }
   RCLCPP_INFO(nh_->get_logger(), "Init ROS services etc");
-  add_controller_service_client_ = nh_->create_client<candle_ros2::srv::AddMd80s>("candle_ros2_node/add_md80s");
-  set_mode_service_client_ = nh_->create_client<candle_ros2::srv::SetModeMd80s>("candle_ros2_node/set_mode_md80s");
-  set_zero_service_client_ = nh_->create_client<candle_ros2::srv::GenericMd80Msg>("candle_ros2_node/zero_md80s");
-  enable_motors_service_client_ = nh_->create_client<candle_ros2::srv::GenericMd80Msg>("candle_ros2_node/enable_md80s");
-  disable_motors_service_client_ =
-      nh_->create_client<candle_ros2::srv::GenericMd80Msg>("candle_ros2_node/disable_md80s");
+  add_controller_service_client_ = nh_->create_client<candle_ros2::srv::AddDevices>("/md/add_mds");
+  set_mode_service_client_ = nh_->create_client<candle_ros2::srv::SetMode>("/md/set_mode");
+  set_zero_service_client_ = nh_->create_client<candle_ros2::srv::Generic>("/md/zero");
+  enable_motors_service_client_ = nh_->create_client<candle_ros2::srv::Generic>("/md/enable");
+  disable_motors_service_client_ = nh_->create_client<candle_ros2::srv::Generic>("/md/disable");
 
   joint_state_sub_ = nh_->create_subscription<sensor_msgs::msg::JointState>(
       "/md80/joint_states", 10, std::bind(&CurtMiniHardwareInterface::jointsCallback, this, std::placeholders::_1));
-  command_pub_ = nh_->create_publisher<candle_ros2::msg::MotionCommand>("/md80/motion_command", 10);
-  config_pub_ = nh_->create_publisher<candle_ros2::msg::VelocityPidCommand>("/md80/velocity_pid_command", 10);
+  command_pub_ = nh_->create_publisher<candle_ros2::msg::MotionCmd>("/md/motion_command", 10);
+  config_pub_ = nh_->create_publisher<candle_ros2::msg::VelocityPidCmd>("/md/velocity_pid_command", 10);
 
   // Init Motor:
   // Add Controllers
@@ -199,8 +198,8 @@ CallbackReturn CurtMiniHardwareInterface::on_init(const hardware_interface::Hard
 
 void CurtMiniHardwareInterface::publishPIDParams(const candle_ros2::msg::Pid& pid_config)
 {
-  auto pid_msg = candle_ros2::msg::VelocityPidCommand();
-  pid_msg.drive_ids = { 101, 100, 103, 102 };
+  auto pid_msg = candle_ros2::msg::VelocityPidCmd();
+  pid_msg.device_ids = { 101, 100, 103, 102 };
   pid_msg.velocity_pid = { pid_config, pid_config, pid_config, pid_config };
   config_pub_->publish(pid_msg);
 }
@@ -245,10 +244,10 @@ std::vector<hardware_interface::CommandInterface> CurtMiniHardwareInterface::exp
   return command_interfaces;
 }
 
-// bool CurtMiniHardwareInterface::sendGenericRequest(rclcpp::Client<candle_ros2::srv::GenericMd80Msg>::SharedPtr&
+// bool CurtMiniHardwareInterface::sendGenericRequest(rclcpp::Client<candle_ros2::srv::Generic>::SharedPtr&
 // client)
 // {
-//   auto request = std::make_shared<candle_ros2::srv::GenericMd80Msg::Request>();
+//   auto request = std::make_shared<candle_ros2::srv::Generic::Request>();
 //   request->drive_ids = { 102, 100, 103, 101 };
 //   auto result = client->async_send_request(request);
 //   if (rclcpp::spin_until_future_complete(nh_, result) == rclcpp::FutureReturnCode::SUCCESS)
@@ -289,30 +288,30 @@ CallbackReturn CurtMiniHardwareInterface::on_activate(const rclcpp_lifecycle::St
   }
   // add controllers via service
   RCLCPP_INFO(nh_->get_logger(), "Waited for motor controllers.");
-  if (!sendCandleRequest<candle_ros2::srv::AddMd80s>(add_controller_service_client_))
+  if (!sendCandleRequest<candle_ros2::srv::AddDevices>(add_controller_service_client_))
   {
     RCLCPP_ERROR(nh_->get_logger(), "Error in adding motor controllers.");
     return CallbackReturn::ERROR;
   }
   RCLCPP_INFO(nh_->get_logger(), "Added motor controllers.");
   // Set Mode via service call
-  auto set_mode_request = std::make_shared<candle_ros2::srv::SetModeMd80s::Request>();
+  auto set_mode_request = std::make_shared<candle_ros2::srv::SetMode::Request>();
   set_mode_request->mode = { "VELOCITY_PID", "VELOCITY_PID", "VELOCITY_PID", "VELOCITY_PID" };
-  if (!sendCandleRequest<candle_ros2::srv::SetModeMd80s>(set_mode_service_client_, set_mode_request))
+  if (!sendCandleRequest<candle_ros2::srv::SetMode>(set_mode_service_client_, set_mode_request))
   {
     return CallbackReturn::ERROR;
   }
 
   RCLCPP_INFO(nh_->get_logger(), "Set mode of motor controllers.");
   // set zero position via service call
-  if (!sendCandleRequest<candle_ros2::srv::GenericMd80Msg>(set_zero_service_client_))
+  if (!sendCandleRequest<candle_ros2::srv::Generic>(set_zero_service_client_))
   {
     return CallbackReturn::ERROR;
   }
 
   RCLCPP_INFO(nh_->get_logger(), "Set zero position of the motors.");
   // enable motors via service call
-  if (!sendCandleRequest<candle_ros2::srv::GenericMd80Msg>(enable_motors_service_client_))
+  if (!sendCandleRequest<candle_ros2::srv::Generic>(enable_motors_service_client_))
   {
     return CallbackReturn::ERROR;
   }
@@ -322,8 +321,8 @@ CallbackReturn CurtMiniHardwareInterface::on_activate(const rclcpp_lifecycle::St
   publishPIDParams(pid_config_);
 
   // publish zero velocity once
-  auto zero_vel = candle_ros2::msg::MotionCommand();
-  zero_vel.drive_ids = { 101, 100, 103, 102 };
+  auto zero_vel = candle_ros2::msg::MotionCmd();
+  zero_vel.device_ids = { 101, 100, 103, 102 };
   zero_vel.target_position = { 0.0, 0.0, 0.0, 0.0 };
   zero_vel.target_velocity = { 0.0, 0.0, 0.0, 0.0 };
   zero_vel.target_torque = { 0.0, 0.0, 0.0, 0.0 };
@@ -338,15 +337,15 @@ CallbackReturn CurtMiniHardwareInterface::on_deactivate(const rclcpp_lifecycle::
 {
   // disable motors
   // publish zero once before
-  auto zero_vel = candle_ros2::msg::MotionCommand();
-  zero_vel.drive_ids = { 101, 100, 103, 102 };
+  auto zero_vel = candle_ros2::msg::MotionCmd();
+  zero_vel.device_ids = { 101, 100, 103, 102 };
   zero_vel.target_position = { 0.0, 0.0, 0.0, 0.0 };
   zero_vel.target_velocity = { 0.0, 0.0, 0.0, 0.0 };
   zero_vel.target_torque = { 0.0, 0.0, 0.0, 0.0 };
   command_pub_->publish(zero_vel);
 
   // disable service call
-  if (!sendCandleRequest<candle_ros2::srv::GenericMd80Msg>(disable_motors_service_client_))
+  if (!sendCandleRequest<candle_ros2::srv::Generic>(disable_motors_service_client_))
   {
     return CallbackReturn::ERROR;
   }
@@ -369,8 +368,8 @@ CallbackReturn CurtMiniHardwareInterface::on_deactivate(const rclcpp_lifecycle::
 
 void CurtMiniHardwareInterface::writeCommandsToHardware()
 {
-  auto command_vel = candle_ros2::msg::MotionCommand();
-  command_vel.drive_ids = { 101, 100, 103, 102 };
+  auto command_vel = candle_ros2::msg::MotionCmd();
+  command_vel.device_ids = { 101, 100, 103, 102 };
   command_vel.target_position = { 0.0, 0.0, 0.0, 0.0 };
 
   command_vel.target_torque = { 0.0, 0.0, 0.0, 0.0 };
