@@ -78,7 +78,7 @@ CallbackReturn CurtMiniHardwareInterface::on_init(const hardware_interface::Hard
   joint_state_sub_ = nh_->create_subscription<sensor_msgs::msg::JointState>(
       "/md80/joint_states", 10, std::bind(&CurtMiniHardwareInterface::jointsCallback, this, std::placeholders::_1));
   command_pub_ = nh_->create_publisher<candle_ros2::msg::MotionCmd>("/md/motion_command", 10);
-  config_pub_ = nh_->create_publisher<candle_ros2::msg::VelocityPidCmd>("/md/velocity_pid_command", 10);
+  config_pub_ = nh_->create_publisher<candle_ros2::msg::VelocityPidCmd>("/md/velocity_command", 10);
 
   // Init Motor:
   // Add Controllers
