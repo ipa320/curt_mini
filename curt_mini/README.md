@@ -20,6 +20,7 @@ git clone https://github.com/ipa320/curt_mini.git
 cd ..
 vcs import src/ < src/curt_mini/curt_mini/curt_mini.repos
 vcs import src/ < src/curt_mini/ipa_ros2_control/ipa_ros2_control.repos
+find src -type d -name .git -prune -execdir git submodule update --init --recursive \;
 rosdep install --from-path src --ignore-src --rosdistro jazzy -y -r
 colcon build
 ```
