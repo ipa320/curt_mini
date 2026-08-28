@@ -52,7 +52,7 @@ class CurtMiniHardwareInterface : public hardware_interface::SystemInterface
 public:
 
   CallbackReturn
-  on_init(const hardware_interface::HardwareInfo &hardware_info) override;
+  on_init(const hardware_interface::HardwareComponentInterfaceParams &params) override;
   
   std::vector<hardware_interface::StateInterface> export_state_interfaces() override;
 
@@ -64,6 +64,7 @@ public:
   on_activate(const rclcpp_lifecycle::State &previous_state) override;
   CallbackReturn
   on_deactivate(const rclcpp_lifecycle::State &previous_state) override;
+  CallbackReturn 	on_shutdown (const rclcpp_lifecycle::State &previous_state) override;
 
   hardware_interface::return_type read(const rclcpp::Time &time, const rclcpp::Duration &period) override;
 
@@ -99,26 +100,32 @@ private:
   template <typename candle_srv_type>
   bool sendCandleRequest(
       typename rclcpp::Client<candle_srv_type>::SharedPtr client,
-      typename candle_srv_type::Request::SharedPtr request = std::make_shared<typename candle_srv_type::Request>())
+      typename candle_srv_type::Request::SharedPtr request =
+          std::make_shared<typename candle_srv_type::Request>())
   {
-    RCLCPP_INFO_STREAM(nh_->get_logger(), "Calling " << client->get_service_name());
-    request->device_ids = { 102, 100, 103, 101 }; // { br , fr, bl , fl}
-    auto result = client->async_send_request(request);
-    if (rclcpp::spin_until_future_complete(nh_, result, std::chrono::seconds{5}) == rclcpp::FutureReturnCode::SUCCESS)
+    request->device_ids = {102, 100, 103, 101};  // {br, fr, bl, fl}
+
+    auto future = client->async_send_request(request);
+    auto status = future.wait_for(std::chrono::seconds(5));
+
+    if (status != std::future_status::ready)
     {
-      RCLCPP_INFO_STREAM(nh_->get_logger(), "Calling ");
-      auto res = *result.get();
-      if (!std::all_of(res.success.begin(), res.success.end(),
-                       [](bool b) { return b; }))
-      {
-        RCLCPP_ERROR_STREAM(nh_->get_logger(),
-                            "Service " << client->get_service_name() << " was not successfull for all motors! Exiting");
-        return false;
-      }
+      RCLCPP_ERROR_STREAM(
+        nh_->get_logger(),
+        "Service " << client->get_service_name() << " timeout or not ready");
+      return false;
     }
-    else
+
+    auto response = future.get();
+
+    if (!std::all_of(response->success.begin(),
+                    response->success.end(),
+                    [](bool b) { return b; }))
     {
-      RCLCPP_ERROR_STREAM(nh_->get_logger(), "Calling " << client->get_service_name() << " failed! Exiting");
+      RCLCPP_ERROR_STREAM(
+        nh_->get_logger(),
+        "Service " << client->get_service_name()
+                  << " was not successful for all motors!");
       return false;
     }
     return true;
@@ -152,6 +159,9 @@ private:
 
   // map of joint names and there index
   std::map<std::string, uint8_t> wheel_joints_;
+  std::map<size_t, double> joint_correction_factors_;
+  std::map<std::string, int> wheel_joints_motor_ids_;
+  std::map<size_t, size_t> joint_index_to_md80_index_;
 };
 
 }  // namespace ipa_ros2_control
