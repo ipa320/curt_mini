@@ -20,27 +20,37 @@
       </xacro:if>
       <xacro:unless value="$(arg simulation)">
         <plugin>ipa_ros2_control/CurtMiniHardwareInterface</plugin>
+        <param name="pid_config.kp">8.0</param>
+        <param name="pid_config.ki">1.0</param>
+        <param name="pid_config.kd">0.0</param>
+        <param name="pid_config.i_windup">6.0</param>
+        <param name="pid_config.max_output">18.0</param>
+        <param name="standstill_thresh">10.0</param>
       </xacro:unless>
     </hardware>
-    <joint name="front_left_motor">
+    <joint name="back_right_motor">
       <command_interface name="velocity"/>
       <state_interface name="position"/>
       <state_interface name="velocity"/>
+      <param name="motor_id">102</param>
     </joint>
     <joint name="front_right_motor">
       <command_interface name="velocity"/>
       <state_interface name="position"/>
       <state_interface name="velocity"/>
+      <param name="motor_id">100</param> 
+    </joint>
+    <joint name="front_left_motor">
+      <command_interface name="velocity"/>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+      <param name="motor_id">101</param>
     </joint>
     <joint name="back_left_motor">
       <command_interface name="velocity"/>
       <state_interface name="position"/>
       <state_interface name="velocity"/>
-    </joint>
-    <joint name="back_right_motor">
-      <command_interface name="velocity"/>
-      <state_interface name="position"/>
-      <state_interface name="velocity"/>
+      <param name="motor_id">103</param>
     </joint>
   </ros2_control>
 </robot>

@@ -12,9 +12,17 @@
 
 namespace ipa_ros2_control
 {
-CallbackReturn CurtMiniHardwareInterface::on_init(const hardware_interface::HardwareInfo& info)
+CallbackReturn CurtMiniHardwareInterface::on_init(const hardware_interface::HardwareComponentInterfaceParams& params)
 {
+  auto const& info = params.hardware_info;
   nh_ = std::make_shared<rclcpp::Node>("CurtMiniHardwareInterface");
+  auto executor = params.executor.lock();
+  if (!executor)
+  {
+    RCLCPP_ERROR(nh_->get_logger(), "Executor is not available. Cannot add node to executor.");
+    return CallbackReturn::ERROR;
+  }
+  executor->add_node(nh_);
   RCLCPP_INFO(nh_->get_logger(), "Configure");
   if (SystemInterface::on_init(info) != CallbackReturn::SUCCESS) {
     return CallbackReturn::ERROR;
@@ -23,6 +31,48 @@ CallbackReturn CurtMiniHardwareInterface::on_init(const hardware_interface::Hard
   RCLCPP_INFO(nh_->get_logger(), "Name: %s", info_.name.c_str());
 
   RCLCPP_INFO(nh_->get_logger(), "Number of Joints %zu", info_.joints.size());
+
+  // Ensure joints are defined in the correct order
+  bool correct_joint_order =
+    info_.joints.size() == 4 &&
+    info_.joints[0].name == "back_right_motor" &&
+    info_.joints[1].name == "front_right_motor" &&
+    info_.joints[2].name == "front_left_motor" &&
+    info_.joints[3].name == "back_left_motor";
+
+  if (!correct_joint_order)
+  {
+    RCLCPP_ERROR(nh_->get_logger(), "Joints are not defined in the correct order in 'ros2_control.xacro'.");
+    RCLCPP_ERROR(nh_->get_logger(), "Ensure order is: back right, front right, front left, back left.");
+    return CallbackReturn::ERROR;
+  }
+
+  for (const auto& joint : info_.joints)
+  {
+    if (auto motor_id_param = joint.parameters.find("motor_id"); motor_id_param != joint.parameters.end())
+    {      
+      wheel_joints_motor_ids_[joint.name] = std::stoi(motor_id_param->second);
+      RCLCPP_INFO(nh_->get_logger(), "Joint '%s' has motor_id: %d", joint.name.c_str(), wheel_joints_motor_ids_[joint.name]);
+    }
+    else
+    {
+      RCLCPP_ERROR(nh_->get_logger(), "Joint '%s' does not have a 'motor_id' parameter.", joint.name.c_str());
+      return CallbackReturn::ERROR;
+    }
+  }
+
+  // correction factors for right side wheels
+  for (uint i = 0; i < info_.joints.size(); ++i)
+  {
+    if (info_.joints[i].name.find("right") != std::string::npos)
+    {
+      joint_correction_factors_[i] = -1.0;
+    }
+    else
+    {
+      joint_correction_factors_[i] = 1.0;
+    }
+  }
 
   hw_states_position_.resize(info_.joints.size(), std::numeric_limits<double>::quiet_NaN());
   hw_states_velocity_.resize(info_.joints.size(), std::numeric_limits<double>::quiet_NaN());
@@ -76,7 +126,7 @@ CallbackReturn CurtMiniHardwareInterface::on_init(const hardware_interface::Hard
   disable_motors_service_client_ = nh_->create_client<candle_ros2::srv::Generic>("/md/disable");
 
   joint_state_sub_ = nh_->create_subscription<sensor_msgs::msg::JointState>(
-      "/md80/joint_states", 10, std::bind(&CurtMiniHardwareInterface::jointsCallback, this, std::placeholders::_1));
+      "/md/joint_states", 10, std::bind(&CurtMiniHardwareInterface::jointsCallback, this, std::placeholders::_1));
   command_pub_ = nh_->create_publisher<candle_ros2::msg::MotionCmd>("/md/motion_command", 10);
   config_pub_ = nh_->create_publisher<candle_ros2::msg::VelocityPidCmd>("/md/velocity_command", 10);
 
@@ -89,11 +139,12 @@ CallbackReturn CurtMiniHardwareInterface::on_init(const hardware_interface::Hard
   motor_joint_state_.effort = { 0.0, 0.0, 0.0, 0.0 };
 
   // pid params
-  pid_config_.kp = 8.0;
-  pid_config_.ki = 1.0;
-  pid_config_.kd = 0.0;
-  pid_config_.i_windup = 6.0;
-  pid_config_.max_output = 18.0;
+  pid_config_.kp = std::stod(info_.hardware_parameters.at("pid_config.kp"));
+  pid_config_.ki = std::stod(info_.hardware_parameters.at("pid_config.ki"));
+  pid_config_.kd = std::stod(info_.hardware_parameters.at("pid_config.kd"));
+  pid_config_.i_windup = std::stod(info_.hardware_parameters.at("pid_config.i_windup"));
+  pid_config_.max_output = std::stod(info_.hardware_parameters.at("pid_config.max_output"));
+  standstill_thresh_ = std::stod(info_.hardware_parameters.at("standstill_thresh"));
 
   auto_declare<double>("pid_config.kp", pid_config_.kp);
   auto_declare<double>("pid_config.ki", pid_config_.ki);
@@ -191,7 +242,6 @@ CallbackReturn CurtMiniHardwareInterface::on_init(const hardware_interface::Hard
         }
         return result;
       });
-  RCLCPP_INFO(nh_->get_logger(), "Init finished");
 
   return CallbackReturn::SUCCESS;
 }
@@ -221,26 +271,11 @@ std::vector<hardware_interface::StateInterface> CurtMiniHardwareInterface::expor
 std::vector<hardware_interface::CommandInterface> CurtMiniHardwareInterface::export_command_interfaces()
 {
   std::vector<hardware_interface::CommandInterface> command_interfaces;
-  for (auto i = 0u; i < info_.joints.size(); i++)
+  for (size_t i = 0; i < info_.joints.size(); i++)
   {
     command_interfaces.emplace_back(hardware_interface::CommandInterface(
         info_.joints[i].name, hardware_interface::HW_IF_VELOCITY, &hw_commands_[i]));
-
-    // Map wheel joint name to index
-    wheel_joints_[info_.joints[i].name] = i;
-    // this does not work yet
-
-    RCLCPP_INFO_STREAM(nh_->get_logger(), "Wheel joint names and indices are set as follows:\n"
-                                              << info_.joints[wheel_joints_["front_left_motor"]].name
-                                              << " at index: " << wheel_joints_["front_left_motor"] << "\n"
-                                              << info_.joints[wheel_joints_["front_right_motor"]].name
-                                              << " at index: " << wheel_joints_["front_right_motor"] << "\n"
-                                              << info_.joints[wheel_joints_["back_left_motor"]].name
-                                              << " at index: " << wheel_joints_["back_left_motor"] << "\n"
-                                              << info_.joints[wheel_joints_["back_right_motor"]].name
-                                              << " at index: " << wheel_joints_["back_right_motor"]);
   }
-
   return command_interfaces;
 }
 
@@ -322,7 +357,9 @@ CallbackReturn CurtMiniHardwareInterface::on_activate(const rclcpp_lifecycle::St
 
   // publish zero velocity once
   auto zero_vel = candle_ros2::msg::MotionCmd();
-  zero_vel.device_ids = { 101, 100, 103, 102 };
+  // get vector of motor ids from the wheel_joints_motor_ids_ map
+  std::transform(wheel_joints_motor_ids_.begin(), wheel_joints_motor_ids_.end(), std::back_inserter(zero_vel.device_ids),
+                 [](const std::pair<std::string, int>& pair) { return static_cast<uint32_t>(pair.second); });
   zero_vel.target_position = { 0.0, 0.0, 0.0, 0.0 };
   zero_vel.target_velocity = { 0.0, 0.0, 0.0, 0.0 };
   zero_vel.target_torque = { 0.0, 0.0, 0.0, 0.0 };
@@ -330,6 +367,11 @@ CallbackReturn CurtMiniHardwareInterface::on_activate(const rclcpp_lifecycle::St
 
   RCLCPP_INFO(nh_->get_logger(), "System Successfully started!");
 
+  return CallbackReturn::SUCCESS;
+}
+
+CallbackReturn CurtMiniHardwareInterface::on_shutdown(const rclcpp_lifecycle::State & /* previous_state */)
+{
   return CallbackReturn::SUCCESS;
 }
 
@@ -369,11 +411,14 @@ CallbackReturn CurtMiniHardwareInterface::on_deactivate(const rclcpp_lifecycle::
 void CurtMiniHardwareInterface::writeCommandsToHardware()
 {
   auto command_vel = candle_ros2::msg::MotionCmd();
-  command_vel.device_ids = { 101, 100, 103, 102 };
+  // get vector of motor ids from the wheel_joints_motor_ids_ map
   command_vel.target_position = { 0.0, 0.0, 0.0, 0.0 };
 
   command_vel.target_torque = { 0.0, 0.0, 0.0, 0.0 };
-
+  for(size_t i = 0; i < info_.joints.size(); i++)
+  {
+    command_vel.device_ids.push_back(wheel_joints_motor_ids_[info_.joints[i].name]);
+  }
   // turn off torque when standing still
   if (std::all_of(hw_commands_.begin(), hw_commands_.end(), [](double cmd) { return cmd == 0; }) &&
       std::none_of(hw_states_velocity_.begin(), hw_states_velocity_.end(),
@@ -388,6 +433,7 @@ void CurtMiniHardwareInterface::writeCommandsToHardware()
     }
     command_vel.target_velocity = { 0.0, 0.0, 0.0, 0.0 };
     command_pub_->publish(command_vel);
+    return;
   }
   else
   {
@@ -397,14 +443,13 @@ void CurtMiniHardwareInterface::writeCommandsToHardware()
       motors_paused_ = false;
     }
 
-    // only front wheel commands are used
-    // right side has to be multiplied with -1 due to the orientation of the motors
-    float diff_speed_left = hw_commands_[wheel_joints_["front_left_motor"]];
-    float diff_speed_right = -1 * hw_commands_[wheel_joints_["front_right_motor"]];
-    //RCLCPP_INFO_STREAM(nh_->get_logger(), "Send left side velocity:\t" <<
-    //diff_speed_left); RCLCPP_INFO_STREAM(nh_->get_logger(), "Send right side velocity:\t"
-    //<< diff_speed_right);
-    command_vel.target_velocity = { diff_speed_left, diff_speed_right, diff_speed_left, diff_speed_right };
+    // fill the target velocity vector with the values from the hw_commands_ vector but switch the sign of the right side motors due to the orientation of the motors
+    // initialize the target_velocity vector with the same size as hw_commands_ and fill it with zeros
+    command_vel.target_velocity.resize(hw_commands_.size(), 0.0);
+    for(size_t i = 0; i < info_.joints.size(); i++)
+    {
+      command_vel.target_velocity[joint_index_to_md80_index_[i]] = (joint_correction_factors_[i] * hw_commands_[i]);
+    }
   }
 
   // publish topic with values
@@ -415,27 +460,39 @@ void CurtMiniHardwareInterface::writeCommandsToHardware()
 void CurtMiniHardwareInterface::jointsCallback(const std::shared_ptr<sensor_msgs::msg::JointState> msg)
 {
   motor_joint_state_ = *msg;
+
+  if(joint_index_to_md80_index_.empty())
+  {
+    for(size_t i = 0; i < info_.joints.size(); i++)
+    {
+      auto joint_name = info_.joints[i].name;
+      auto motor_id = wheel_joints_motor_ids_[joint_name];
+      // find the index of the motor id in the motor_joint_state_ message
+      auto it = std::find(motor_joint_state_.name.begin(), motor_joint_state_.name.end(), "Joint " + std::to_string(motor_id));
+      if (it == motor_joint_state_.name.end())
+      {
+        RCLCPP_ERROR_STREAM(nh_->get_logger(), "Motor id " << motor_id << " not found in joint state message!");
+        continue;
+      }
+      auto index = std::distance(motor_joint_state_.name.begin(), it);
+      joint_index_to_md80_index_[i] = index;
+    }
+  }
 }
 
 void CurtMiniHardwareInterface::updateJointsFromHardware()
 {
-  for (auto i = 0u; i < info_.joints.size(); ++i)
+  if(joint_index_to_md80_index_.empty())
   {
-    hw_states_position_[i] = motor_joint_state_.position[i];
-    if (i % 2 == 0)
-    {
-      hw_states_velocity_[i] = motor_joint_state_.velocity[i];
-    }
-    else  // correct velocities for left side
-    {
-      hw_states_velocity_[i] = -1 * motor_joint_state_.velocity[i];
-    }
+    RCLCPP_WARN_STREAM(nh_->get_logger(), "Not yet received joint states from md80.Joint index to md80 index mapping is empty. Cannot update joint states.");
+    return;
   }
-
-  //RCLCPP_INFO_STREAM(nh_->get_logger(), "Read left side velocity:\t" <<
-  //hw_states_velocity_[wheel_joints_["front_left_motor"]]);
-  //RCLCPP_INFO_STREAM(nh_->get_logger(), "Read right side velocity:\t" <<
-  //hw_states_velocity_[wheel_joints_["front_right_motor"]]);
+  // use the motor id to assign the right hw_states_position_ and hw_states_velocity_ values to the correct index in the vectors
+  for (size_t i = 0; i < info_.joints.size(); ++i)
+  {
+    hw_states_position_[i] = motor_joint_state_.position[joint_index_to_md80_index_[i] ];
+    hw_states_velocity_[i] = joint_correction_factors_[i] * motor_joint_state_.velocity[joint_index_to_md80_index_[i] ];
+  }
 }
 
 }  // namespace ipa_ros2_control

@@ -18,9 +18,9 @@ mkdir -p <colcon_ws>/src
 cd <colcon_ws>/src 
 git clone https://github.com/ipa320/curt_mini.git
 cd ..
-vcs import src/ < src/curt_mini/curt_mini/curt_mini.repos
-vcs import src/ < src/curt_mini/ipa_ros2_control/ipa_ros2_control.repos
-rosdep install --from-path src --ignore-src --rosdistro jazzy -y -r
+vcs import --recursive src/ < src/curt_mini/curt_mini/curt_mini.repos
+vcs import --recursive src/ < src/curt_mini/ipa_ros2_control/ipa_ros2_control.repos
+rosdep install --from-path src --ignore-src
 colcon build
 ```
 
