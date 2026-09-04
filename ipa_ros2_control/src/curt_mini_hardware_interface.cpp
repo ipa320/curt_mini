@@ -32,6 +32,21 @@ CallbackReturn CurtMiniHardwareInterface::on_init(const hardware_interface::Hard
 
   RCLCPP_INFO(nh_->get_logger(), "Number of Joints %zu", info_.joints.size());
 
+  // Ensure joints are defined in the correct order
+  bool correct_joint_order =
+    info_.joints.size() == 4 &&
+    info_.joints[0].name == "back_right_motor" &&
+    info_.joints[1].name == "front_right_motor" &&
+    info_.joints[2].name == "front_left_motor" &&
+    info_.joints[3].name == "back_left_motor";
+
+  if (!correct_joint_order)
+  {
+    RCLCPP_ERROR(nh_->get_logger(), "Joints are not defined in the correct order in 'ros2_control.xacro'.");
+    RCLCPP_ERROR(nh_->get_logger(), "Ensure order is: back right, front right, front left, back left.");
+    return CallbackReturn::ERROR;
+  }
+
   for (const auto& joint : info_.joints)
   {
     if (auto motor_id_param = joint.parameters.find("motor_id"); motor_id_param != joint.parameters.end())
