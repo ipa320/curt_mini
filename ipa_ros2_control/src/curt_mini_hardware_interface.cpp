@@ -271,7 +271,7 @@ std::vector<hardware_interface::StateInterface> CurtMiniHardwareInterface::expor
 std::vector<hardware_interface::CommandInterface> CurtMiniHardwareInterface::export_command_interfaces()
 {
   std::vector<hardware_interface::CommandInterface> command_interfaces;
-  for (std::size_t i = 0; i < info_.joints.size(); i++)
+  for (size_t i = 0; i < info_.joints.size(); i++)
   {
     command_interfaces.emplace_back(hardware_interface::CommandInterface(
         info_.joints[i].name, hardware_interface::HW_IF_VELOCITY, &hw_commands_[i]));
