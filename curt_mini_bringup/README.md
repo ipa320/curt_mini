@@ -36,6 +36,9 @@ colcon build
 
 Launch the base with `ros2 launch curt_mini_bringup robot_base.launch.py`. The joystick launch in `curt_mini_bringup` is a wrapper around `curt_mini_teleop`. Older model references to `$(find curt_mini)/models/...` or `package://curt_mini/models/...` must use `curt_mini_description` instead. Simulation configuration lives in `curt_mini_description/config`. Joystick configuration lives in `curt_mini_teleop/config`.
 
+Set `publish_robot_description` to `True` (default value) for standalone base use. If you use the base as part of a bigger robot system (for example an arm on top), the combined bringup should publish the robot description. In this case set `publish_robot_description` to `False`. Only one robot state publisher should own the base model and its TF frames.
+
+
 The driver launch accepts `controllers_file` for its controller manager configuration; direct invocations default to `curt_mini_bringup/config/ros2_control.yaml`.
 
 ## View the robot from another PC
