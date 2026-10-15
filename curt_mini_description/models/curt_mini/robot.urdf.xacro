@@ -12,6 +12,8 @@
   <!-- Include properties -->
   <xacro:include filename="$(find curt_mini_description)/models/curt_mini/properties.xacro" />
 
+  <xacro:include filename="$(find curt_mini_description)/models/curt_mini/material.xacro" />
+
   <!-- Include sensors -->
   <xacro:include filename="$(find curt_mini_description)/models/curt_mini/sensors.xacro" />
 
@@ -72,9 +74,7 @@
       <geometry>
         <mesh filename="package://curt_mini_description/models/curt_mini/meshes/wheel4_link.STL" />
       </geometry>
-      <material name="">
-        <color rgba="0.79216 0.81961 0.93333 1" />
-      </material>
+      <material name="curt_mini_dark_gray" />
     </visual>
     <collision>
       <origin xyz="0 0.01 0" rpy="${PI / 2} 0 0" />
@@ -104,9 +104,7 @@
       <geometry>
         <mesh filename="package://curt_mini_description/models/curt_mini/meshes/wheel1_link.STL" />
       </geometry>
-      <material name="">
-        <color rgba="0.79216 0.81961 0.93333 1" />
-      </material>
+      <material name="curt_mini_dark_gray" />
     </visual>
     <collision>
       <origin xyz="0 -0.01 0" rpy="${PI / 2} 0 0" />
@@ -136,9 +134,7 @@
       <geometry>
         <mesh filename="package://curt_mini_description/models/curt_mini/meshes/wheel3_link.STL" />
       </geometry>
-      <material name="">
-        <color rgba="0.79216 0.81961 0.93333 1" />
-      </material>
+      <material name="curt_mini_dark_gray" />
     </visual>
     <collision>
       <origin xyz="0 0.01 0" rpy="${PI / 2} 0 0" />
@@ -168,9 +164,7 @@
       <geometry>
         <mesh filename="package://curt_mini_description/models/curt_mini/meshes/wheel2_link.STL" />
       </geometry>
-      <material name="">
-        <color rgba="0.79216 0.81961 0.93333 1" />
-      </material>
+      <material name="curt_mini_dark_gray" />
     </visual>
     <collision>
       <origin xyz="0 -0.01 0" rpy="${PI / 2} 0 0" />
