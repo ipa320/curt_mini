@@ -1,3 +1,16 @@
 docs_build
 docs_output
 cross_reference
+
+# ROS 2 build outputs
+build/
+install/
+log/
+
+# Python caches
+__pycache__/
+*.pyc
+*.pyo
+
+# Local editor settings
+.vscode/

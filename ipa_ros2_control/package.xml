@@ -2,10 +2,10 @@
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
   <name>ipa_ros2_control</name>
-  <version>0.0.0</version>
+  <version>1.0.0</version>
   <description>Drivers for actuators and sensors. Implementation of ros2_control.</description>
 
-  <maintainer email="trs@fhg.de">ipa-trs</maintainer>
+  <maintainer email="jonas.otto@ipa.fraunhofer.de">Jonas Otto</maintainer>
 
   <license>TODO: License declaration</license>
 

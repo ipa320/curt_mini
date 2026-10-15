@@ -12,7 +12,7 @@ windows:
       - export DISPLAY=:0
     panes:
       - shell_command:
-        - ros2 launch curt_mini robot_base.launch.py
+        - ros2 launch curt_mini_bringup robot_base.launch.py
 
       - shell_command:
         - echo ""

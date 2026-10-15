@@ -1,23 +1,23 @@
 <?xml version="1.0"?>
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
-  <name>curt_mini</name>
-  <version>0.0.0</version>
+  <name>curt_mini_bringup</name>
+  <version>1.0.0</version>
   <description>Configurations for Curt mini</description>
-  <maintainer email="tobias.rainer.schaefle@ipa.fraunhofer.de">ipa-trs</maintainer>
+  <maintainer email="jonas.otto@ipa.fraunhofer.de">Jonas Otto</maintainer>
   <license>TODO: License declaration</license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 
   <depend>ipa_ros2_control</depend>
   <depend>joint_state_publisher</depend>
-  <depend>joy_linux</depend>
   <depend>robot_state_publisher</depend>
   <depend>rclcpp</depend>
   <depend>rclpy</depend>
   <depend>xacro</depend>
   <exec_depend>twist_mux</exec_depend>
-  <exec_depend>teleop_twist_joy</exec_depend>
+  <exec_depend>curt_mini_teleop</exec_depend>
+  <exec_depend>curt_mini_description</exec_depend>
 
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>

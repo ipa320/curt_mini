@@ -1,0 +1,9 @@
+repositories:
+  candle_ros2:
+    type: git
+    url: https://github.com/mabrobotics/candle_ros2.git
+    version: 08835c6f15944f64b6f7efabc7a87833d09be6bc
+  openzenros2:
+    type: git
+    url: https://github.com/ipa323/openzenros2.git
+    version: 52ed327ef654abb92258fad60904a35c87778345

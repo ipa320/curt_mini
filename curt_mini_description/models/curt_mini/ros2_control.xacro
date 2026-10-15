@@ -5,7 +5,8 @@
     <plugin filename="libgz_ros2_control-system.so"
       name="gz_ros2_control::GazeboSimROS2ControlPlugin">
       <!-- controller_manager parameters -->
-      <parameters>$(find curt_mini)/config/ros2_control.yaml</parameters>
+      <!-- <parameters>$(find curt_mini_description)/config/ros2_control.yaml</parameters> -->
+      <parameters>$(arg gazebo_controllers)</parameters>
       <ros>
         <remapping>/diff_drive_controller/cmd_vel:=/base_controller/cmd_vel</remapping>
       </ros>

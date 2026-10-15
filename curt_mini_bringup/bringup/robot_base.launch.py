@@ -15,7 +15,7 @@ from launch.actions import (
     GroupAction,
     ExecuteProcess,
 )
-from launch.conditions import UnlessCondition
+from launch.conditions import IfCondition, UnlessCondition
 
 
 def find_serial_device_by_prefix(prefix: str, default: str) -> str:
@@ -30,12 +30,12 @@ def launch_robot():
     # initialize arguments
     robot = "curt_mini"
     sim_configuration = LaunchConfiguration("simulation")
-    robot_dir = FindPackageShare(robot)
+    robot_dir = FindPackageShare("curt_mini_bringup")
 
     twist_mux_path = PathJoinSubstitution([robot_dir, "config", "twist_mux.yaml"])
 
     # start the state publisher
-    urdf_path = PathJoinSubstitution([robot_dir, "models", robot, "robot.urdf.xacro"])
+    urdf_path = PathJoinSubstitution([FindPackageShare("curt_mini_description"), "models", robot, "robot.urdf.xacro"])
     robot_description = Command(
         [
             "xacro ",
@@ -50,6 +50,7 @@ def launch_robot():
         parameters=[
             {"robot_description": ParameterValue(robot_description, value_type=str)}
         ],
+        condition=IfCondition(LaunchConfiguration("publish_robot_description")),
     )
 
     # start the hardware interface
@@ -64,7 +65,7 @@ def launch_robot():
             )
         ),
         launch_arguments={
-            "robot": robot,
+            "controllers_file": PathJoinSubstitution([robot_dir, "config", "ros2_control.yaml"]),
         }.items(),
     )
 
@@ -159,6 +160,18 @@ def generate_launch_description():
             "simulation",
             default_value="False",
             choices=["True", "False"],
+        )
+    )
+
+    declared_arguments.append(
+        DeclareLaunchArgument(
+            "publish_robot_description",
+            default_value="True",
+            choices=["True", "False"],
+            description=(
+                "Publish the base-only robot model. Set False when base "
+                "is part of a bigger robot system (that publishes the robot description)."
+            ),
         )
     )
 

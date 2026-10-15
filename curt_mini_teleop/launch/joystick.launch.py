@@ -8,7 +8,7 @@ from launch_ros.actions import Node
 
 def launch_joystick(context, *args, **kwargs):
     # initialize arguments
-    robot = "curt_mini"
+    robot = "curt_mini_teleop"
 
     filepath_config_joy = os.path.join(
         get_package_share_directory(robot), "config", "joystick.yaml"

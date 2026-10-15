@@ -1,0 +1,19 @@
+services:
+  robot:
+    image: curt-mini:jazzy
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    network_mode: host
+    init: true
+    environment:
+      ROS_DOMAIN_ID: ${ROS_DOMAIN_ID:-61}
+      RMW_IMPLEMENTATION: rmw_cyclonedds_cpp
+    volumes:
+      - /dev/bus/usb:/dev/bus/usb
+    devices:
+      - ${LPMS_DEVICE:-/dev/ttyLPMSCA3D00510053}:/dev/ttyLPMSCA3D00510053
+      - ${JOYSTICK_DEVICE:-/dev/input/f710}:/dev/input/f710
+    device_cgroup_rules:
+      - "c 189:* rmw"
+    stop_grace_period: 20s

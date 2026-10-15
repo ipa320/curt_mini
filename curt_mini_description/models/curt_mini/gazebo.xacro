@@ -2,7 +2,7 @@
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
 
   <!-- Some properties -->
-  <xacro:include filename="$(find curt_mini)/models/curt_mini/properties.xacro" />
+  <xacro:include filename="$(find curt_mini_description)/models/curt_mini/properties.xacro" />
 
   <gazebo reference="base_link">
     <material>Gazebo/Grey</material>

@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.5)
-project(curt_mini)
+project(curt_mini_bringup)
 
 # Default to C99
 if(NOT CMAKE_C_STANDARD)
@@ -21,11 +21,10 @@ find_package(rclcpp REQUIRED)
 find_package(rclpy REQUIRED)
 
 install(
-  DIRECTORY config models bringup
+  DIRECTORY config bringup
   DESTINATION share/${PROJECT_NAME}
 )
 
-ament_environment_hooks("${CMAKE_CURRENT_SOURCE_DIR}/env-hooks/${PROJECT_NAME}.dsv.in")
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)

@@ -51,7 +51,7 @@ This is implemented using a systemd service :code:`ipa-ros-autostart`:
     Type=oneshot
     RemainAfterExit=yes
     User=curt
-    ExecStart=/usr/bin/tmuxp load -d /home/curt/workspace/src/curt_mini/curt_mini/bringup/autostart.tmuxp.yaml
+    ExecStart=/usr/bin/tmuxp load -d /home/curt/workspace/src/curt_mini/curt_mini_bringup/bringup/autostart.tmuxp.yaml
     ExecStop=/usr/bin/tmux kill-session -t nav
 
     [Install]

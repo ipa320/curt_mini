@@ -15,7 +15,7 @@ To launch the entirety of the CURTmini base, launch:
 
 .. code-block:: console
 
-    $ ros2 launch curt_mini robot_base.launch.py
+    $ ros2 launch curt_mini_bringup robot_base.launch.py
 
 The other launch files are included from that launch file, and not intended to be used separately.
 
@@ -36,7 +36,7 @@ The base controller takes the output of the twist mux as input, so any velocity 
 
 The configuration can be adjusted in `ros2_control.yaml`_.
 
-.. _`ros2_control.yaml`: https://github.com/ipa320/curt_mini/blob/main/curt_mini/config/ros2_control.yaml
+.. _`ros2_control.yaml`: https://github.com/ipa320/curt_mini/blob/main/curt_mini_bringup/config/ros2_control.yaml
 
 =========
 Twist Mux
@@ -57,7 +57,7 @@ The default configuration is as follows:
 
 The configuration can be adjusted in `twist_mux.yaml`_.
 
-.. _`twist_mux.yaml`: https://github.com/ipa320/curt_mini/blob/main/curt_mini/config/twist_mux.yaml
+.. _`twist_mux.yaml`: https://github.com/ipa320/curt_mini/blob/main/curt_mini_bringup/config/twist_mux.yaml
 
 .. _joystick:
 
@@ -86,4 +86,4 @@ Steering and accelerating is done using the left thumbstick.
 
 The configuration can be adjusted in `joystick.yaml`_.
 
-.. _`joystick.yaml`: https://github.com/ipa320/curt_mini/blob/main/curt_mini/config/joystick.yaml
+.. _`joystick.yaml`: https://github.com/ipa320/curt_mini/blob/main/curt_mini_teleop/config/joystick.yaml

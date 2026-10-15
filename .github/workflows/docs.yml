@@ -15,12 +15,12 @@ jobs:
       - name: Check out repo
         uses: actions/checkout@v3
       - name: Run rosdoc2
-        run: rosdoc2 build --package-path curt_mini
+        run: rosdoc2 build --package-path curt_mini_bringup
       - name: Upload static files as artifact
         id: deployment
         uses: actions/upload-pages-artifact@v3
         with:
-          path: docs_output/curt_mini/
+          path: docs_output/curt_mini_bringup/
 
   deploy_docs:
     name: Deploy docs

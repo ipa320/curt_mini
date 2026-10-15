@@ -13,12 +13,7 @@ from launch.launch_description_sources import AnyLaunchDescriptionSource
 
 
 def launch_ros2_control(context, *args, **kwargs):
-    # initialize arguments
-    robot = "curt_mini"
-
-    robot_dir = get_package_share_directory(robot)
-
-    ros2_control_yaml_path = os.path.join(robot_dir, "config", "ros2_control.yaml")
+    ros2_control_yaml_path = LaunchConfiguration("controllers_file").perform(context)
 
     controller_manager_node = Node(
         package="controller_manager",
@@ -53,7 +48,15 @@ def launch_ros2_control(context, *args, **kwargs):
 
 def generate_launch_description():
 
-    declared_arguments = []
+    declared_arguments = [
+        DeclareLaunchArgument(
+            "controllers_file",
+            default_value=PathJoinSubstitution([
+                FindPackageShare("curt_mini_bringup"), "config", "ros2_control.yaml"
+            ]),
+            description="Controller manager configuration file.",
+        )
+    ]
 
     return LaunchDescription(
         declared_arguments + [OpaqueFunction(function=launch_ros2_control)]

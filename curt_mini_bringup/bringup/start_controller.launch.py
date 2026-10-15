@@ -7,7 +7,7 @@ from launch.substitutions import PathJoinSubstitution
 def generate_launch_description():
 
     param_file = PathJoinSubstitution(
-        [FindPackageShare("curt_mini"), "config", "ros2_control.yaml"]
+        [FindPackageShare("curt_mini_bringup"), "config", "ros2_control.yaml"]
     )
 
     robot_controller_spawner = Node(
