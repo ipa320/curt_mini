@@ -35,10 +35,23 @@
         <color rgba="0.79216 0.81961 0.93333 1" />
       </material>
     </visual>
-    <collision>
-      <origin xyz="0 0 0" rpy="0 0 0" />
+    <!-- Stacked boxes cover the chassis mesh without filling the space beside its upper body. -->
+    <collision name="chassis_lower_collision">
+      <origin xyz="0 0 -0.025" rpy="0 0 0" />
       <geometry>
-        <mesh filename="package://curt_mini_description/models/curt_mini/meshes/base_link.STL" />
+        <box size="0.63 0.51 0.13" />
+      </geometry>
+    </collision>
+    <collision name="chassis_middle_collision">
+      <origin xyz="0 0 0.10" rpy="0 0 0" />
+      <geometry>
+        <box size="0.59 0.38 0.12" />
+      </geometry>
+    </collision>
+    <collision name="chassis_upper_collision">
+      <origin xyz="0 0 0.18" rpy="0 0 0" />
+      <geometry>
+        <box size="0.60 0.30 0.05" />
       </geometry>
     </collision>
   </link>
